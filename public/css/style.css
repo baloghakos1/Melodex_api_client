@@ -1,0 +1,91 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Set background and font */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Center the content */
+.container {
+    text-align: center;
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin-top: 15%;
+}
+
+/* Heading style */
+.welcome {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.Main_text {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+/* Button container */
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-align: center;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+/* Login button style */
+.btn-login {
+    background-color: #007bff; /* blue */
+    color: #fff;
+}
+
+.btn-login:hover {
+    background-color: #0056b3;
+}
+
+/* Register button style */
+.btn-register {
+    background-color: #28a745; /* green */
+    color: #fff;
+}
+
+.btn-register:hover {
+    background-color: #1e7e34;
+}
+
+.top-right-image {
+    position: absolute;   /* position relative to the page */
+    top: 20px;            /* distance from top */
+    right: 0px;          /* distance from right */
+    width: 300px;         /* adjust size */
+    height: auto;         /* maintain aspect ratio */
+    z-index: 10;          /* make sure it’s above other content */
+}

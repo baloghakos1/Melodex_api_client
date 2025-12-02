@@ -8,7 +8,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Http;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -25,26 +24,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $response = Http::api()->post('/users/login', [
-            'email' => $request->email,
-            'password' => $request->password,
-        ]);
+        $request->authenticate();
 
-        if($request->successful()) {
-            $responseBody = json_decode($response->body());
-            if(empty($responseBody->data)) {
-                return back()->withErrors([
-                    'message' => $responseBody->message,
-                ]);
-            }
-        }
-        session([
-            'api_token' => $responseBody->data->token,
-            'user_name' => $responseBody->data->name,
-            'user_email' => $responseBody->data->email,
-        ]);
+        $request->session()->regenerate();
 
-        return redirect()->intended('/');
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**
@@ -52,7 +36,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        session()->forget('api_token');
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
 
         return redirect('/');
     }
