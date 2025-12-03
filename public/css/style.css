@@ -4,10 +4,9 @@
     box-sizing: border-box;
 }
 
-/* Set background and font */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #999999;
     color: #333;
     display: flex;
     flex-direction: column;
@@ -16,22 +15,21 @@ body {
     margin: 0;
 }
 
-/* Center the content */
 .container {
     text-align: center;
-    background-color: white;
+    background-color: rgb(58, 58, 58);
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
-    margin-top: 15%;
+    margin-top: 5%;
 }
 
-/* Heading style */
 .welcome {
     font-size: 24px;
     margin-bottom: 20px;
+    color: white;
 }
 
 .Main_text {
@@ -39,9 +37,14 @@ body {
     margin-top: 20px;
     font-size: 3rem;
     font-weight: bold;
+    color: rgb(107, 38, 127);
 }
 
-/* Button container */
+.side_text {
+    text-align: center;
+    color: rgb(255, 255, 255);
+}
+
 .options {
     display: flex;
     flex-direction: column;
@@ -61,31 +64,26 @@ body {
     min-width: 150px;
 }
 
-/* Login button style */
 .btn-login {
-    background-color: #007bff; /* blue */
+    background-color: rgb(107, 38, 127);
     color: #fff;
 }
 
 .btn-login:hover {
-    background-color: #0056b3;
+    background-color: #59006b;
 }
 
-/* Register button style */
 .btn-register {
-    background-color: #28a745; /* green */
+    background-color: #1b52a3;
     color: #fff;
 }
 
 .btn-register:hover {
-    background-color: #1e7e34;
+    background-color: #00098b;
 }
 
-.top-right-image {
-    position: absolute;   /* position relative to the page */
-    top: 20px;            /* distance from top */
-    right: 0px;          /* distance from right */
-    width: 300px;         /* adjust size */
-    height: auto;         /* maintain aspect ratio */
-    z-index: 10;          /* make sure it’s above other content */
+.top-middle-image {
+    display: block;
+    margin: 20px auto 0;
+    max-width: 300px;
 }

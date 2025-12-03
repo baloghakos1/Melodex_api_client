@@ -9,14 +9,14 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('front_view.ico') }}">
 </head>
 <body>
+    <div>
+        <img src="{{ asset('image/angled_view.png') }}" alt="Home" class="top-middle-image" />
+    </div>
     <div class="Main_text">
         <h1>Melodex</h1>
     </div>
-    <div>
+    <div class="side_text">
         <h2>♪ Music without limits ♪</h2>
-    </div>
-    <div>
-        <img src="{{ asset('image/angled_view.png') }}" alt="Home" class="top-right-image" />
     </div>
     <div class="container">
         <h1 class="welcome">Welcome</h1>
