@@ -17,17 +17,15 @@
                 @endif
 
                 @if($artists->isNotEmpty())
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="artist-grid">
-                            @foreach($artists as $artist)
-                                <a href="{{ url('artist/' . str_replace(' ', '-', strtolower($artist->name))) }}">
-                                    <button type="button" class="artist-btn flex flex-col items-center">
-                                        <img class="artist-img rounded-lg" src="{{ $artist->image }}" alt="{{ $artist->name }}">
-                                        <span class="artist-name mt-2 font-medium">{{ $artist->name }}</span>
-                                    </button>
-                                </a>
-                            @endforeach
-                        </div>
+                    <div class="artist-grid">
+                        @foreach($artists as $artist)
+                            <a href="{{ url('artist/' . str_replace(' ', '-', strtolower($artist->name))) }}">
+                                <button type="button" class="artist-btn flex flex-col items-center">
+                                    <img class="artist-img rounded-lg" src="{{ $artist->image }}" alt="{{ $artist->name }}">
+                                    <span class="artist-name mt-2 font-medium">{{ $artist->name }}</span>
+                                </button>
+                            </a>
+                        @endforeach
                     </div>
                 @else
                 <p class="text-gray-500">No artists found.</p>
