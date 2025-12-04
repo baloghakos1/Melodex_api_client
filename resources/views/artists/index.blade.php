@@ -19,7 +19,7 @@
                 @if($artists->isNotEmpty())
                     <div class="artist-grid">
                         @foreach($artists as $artist)
-                            <a href="{{ url('artist/' . str_replace(' ', '-', strtolower($artist->name))) }}">
+                            <a href="{{ url('artist/' . ($artist->id)) }}">
                                 <button type="button" class="artist-btn flex flex-col items-center">
                                     <img class="artist-img rounded-lg" src="{{ $artist->image }}" alt="{{ $artist->name }}">
                                     <span class="artist-name mt-2 font-medium">{{ $artist->name }}</span>

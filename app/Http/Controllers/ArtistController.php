@@ -9,8 +9,8 @@ class ArtistController extends Controller
     public function index()
     {
         try {
-            $apiUrl = rtrim(config('app.api_url'), '/') . '/artists';
-            $response = Http::get($apiUrl);
+            $apiBase = rtrim(config('app.api_url'), '/');
+            $response = Http::get("$apiBase/artists");
 
             if ($response->failed()) {
                 $artists = collect();
@@ -28,4 +28,48 @@ class ArtistController extends Controller
         return view('artists.index', compact('artists', 'error'));
     }
 
-}
+    public function show(string $artist_id)
+    {
+        try {
+            $apiBase = rtrim(config('app.api_url'), '/');
+
+            $responseAlbums = Http::get("$apiBase/artist/$artist_id/albums");
+
+            $responseArtist = Http::get("$apiBase/artist/$artist_id");
+
+            if ($responseAlbums->failed() || $responseArtist->failed()) {
+                $artist = null;
+                $albums = collect();
+                $error = "Failed to fetch artist or albums.";
+            } else {
+
+                $albumsData = $responseAlbums->json();
+
+                $artistData = $responseArtist->json()['artist'] ?? null;
+
+                $artist = (object)[
+                    'id'    => $artist_id,
+                    'name'  => $artistData['name'] ?? $albumsData['artist'] ?? 'Unknown Artist',
+                    'image' => $artistData['image'] ?? asset('image/default_artist.png'),
+                    'description' => $artistData['description'] ?? '',
+                    'nationality' => $artistData['nationality'] ?? null,
+                    'is_band' => $artistData['is_band'] ?? 'no',
+                ];
+
+                $albums = collect($albumsData['albums'] ?? [])
+                    ->map(fn($album) => (object) $album);
+
+                $error = null;
+            }
+
+        } catch (\Exception $e) {
+            $artist = null;
+            $albums = collect();
+            $error = "Error fetching artist: " . $e->getMessage();
+        }
+
+        return view('artists.show', compact('artist', 'albums', 'error'));
+    }
+
+
+}   
