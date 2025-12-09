@@ -1,0 +1,11 @@
+header > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.select_crud {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

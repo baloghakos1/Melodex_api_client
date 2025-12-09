@@ -6,7 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #999999;
+    background-color: #ffffff;
     color: #333;
     display: flex;
     flex-direction: column;
@@ -42,7 +42,7 @@ body {
 
 .side_text {
     text-align: center;
-    color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
 }
 
 .options {
