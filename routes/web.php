@@ -36,6 +36,8 @@ Route::get('/crud.albums', [AlbumCrudController::class, 'index'])->name('crud.al
 Route::get('/crud.songs', [SongCrudController::class, 'index'])->name('crud.songs');
 Route::get('/crud.artists', [ArtistCrudController::class, 'index'])->name('crud.artists');
 Route::get('/crud.members', [MemberCrudController::class, 'index'])->name('crud.members');
+
+Route::delete('/crud.song/{id}', [SongCrudController::class, 'destroy'])->name('crud.songs.destroy');
 Route::resource('albumcrud',AlbumCrudController::class);
 Route::resource('songcrud',SongCrudController::class);
 Route::resource('artistcrud',ArtistCrudController::class);

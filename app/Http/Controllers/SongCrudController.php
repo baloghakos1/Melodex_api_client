@@ -11,10 +11,8 @@ class SongCrudController extends Controller
         try {
             $apiBase = rtrim(config('app.api_url'), '/');
 
-            // 1. Fetch all songs
             $responseSongs = Http::get("$apiBase/songs");
 
-            // 2. Fetch all albums
             $responseAlbums = Http::get("$apiBase/albums");
 
             if ($responseSongs->failed() || $responseAlbums->failed()) {
@@ -22,18 +20,15 @@ class SongCrudController extends Controller
                 $albums = collect();
                 $error = "Failed to fetch songs or albums.";
             } else {
-                // Songs data
                 $songsData = $responseSongs->json()['songs'] ?? [];
                 $songs = collect($songsData)
                     ->map(fn($song) => (object) $song);
 
-                // Albums data
                 $albumsData = $responseAlbums->json()['albums'] ?? [];
                 $albums = collect($albumsData)
                     ->map(fn($album) => (object) $album)
-                    ->keyBy('id'); // Key by ID for easy lookup
+                    ->keyBy('id');
 
-                // Attach album object to each song
                 $songs = $songs->map(function ($song) use ($albums) {
                     $song->album = $albums[$song->album_id] ?? null;
                     return $song;
@@ -49,6 +44,47 @@ class SongCrudController extends Controller
         }
 
         return view('crud.songs', compact('songs', 'albums', 'error'));
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $apiBase = rtrim(config('app.api_url'), '/');
+            $token = session('api_token');
+
+            if (!$token) {
+                return redirect()
+                    ->route('crud.songs')
+                    ->with('error', 'Missing API token — authentication failed.');
+            }
+
+            $response = Http::withToken($token)->delete("$apiBase/song/$id");
+
+            // Treat 2xx AND 410 as success
+            if ($response->successful() || $response->status() === 410) {
+                // Decode the body manually in case Content-Type is missing
+                $data = json_decode($response->body());
+
+                $message = $data->message ?? "Song $id was successfully deleted!";
+
+                return redirect()
+                    ->route('crud.songs')
+                    ->with('success', $message);
+            }
+
+            // Other failed responses
+            $data = json_decode($response->body());
+            $msg = $data->message ?? 'Unable to delete the song.';
+
+            return redirect()
+                ->route('crud.songs')
+                ->with('error', "API Error: $msg");
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('crud.songs')
+                ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
+        }
     }
 
     

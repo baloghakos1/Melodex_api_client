@@ -10,10 +10,8 @@ class AlbumCrudController extends Controller
         try {
             $apiBase = rtrim(config('app.api_url'), '/');
 
-            // 1. Fetch all albums
             $responseAlbums = Http::get("$apiBase/albums");
 
-            // 2. Fetch all artists
             $responseArtists = Http::get("$apiBase/artists");
 
             if ($responseAlbums->failed() || $responseArtists->failed()) {
@@ -21,18 +19,15 @@ class AlbumCrudController extends Controller
                 $artists = collect();
                 $error = "Failed to fetch albums or artists.";
             } else {
-                // Albums data
                 $albumsData = $responseAlbums->json()['albums'] ?? [];
                 $albums = collect($albumsData)
                     ->map(fn($album) => (object) $album);
 
-                // Artists data
                 $artistsData = $responseArtists->json()['artists'] ?? [];
                 $artists = collect($artistsData)
                     ->map(fn($artist) => (object) $artist)
-                    ->keyBy('id'); // Key by ID for easy lookup
+                    ->keyBy('id');
 
-                // Attach artist object to each album
                 $albums = $albums->map(function ($album) use ($artists) {
                     $album->artist = $artists[$album->artist_id] ?? null;
                     return $album;

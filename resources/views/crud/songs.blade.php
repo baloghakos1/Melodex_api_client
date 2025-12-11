@@ -30,10 +30,17 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
 
-                {{-- Error Alert --}}
-                @if($error)
+                {{-- Flash Success Message --}}
+                @if (session('success'))
+                    <div class="bg-green-100 text-green-800 p-4 rounded mb-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                {{-- Flash Error Message --}}
+                @if (session('error'))
                     <div class="bg-red-100 text-red-800 p-4 rounded mb-4">
-                        {{ $error }}
+                        {{ session('error') }}
                     </div>
                 @endif
 
