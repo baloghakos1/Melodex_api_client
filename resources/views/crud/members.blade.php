@@ -13,7 +13,7 @@
                 {{ __('Select Data table: ') }}
             </label>
 
-            <select name="crud" id="crud" 
+            <select name="crud" id="crud"
                     class="border-gray-300 rounded-lg shadow-sm"
                     onchange="location = this.value">
 
@@ -30,10 +30,17 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
 
-                {{-- Error Alert --}}
-                @if($error)
+                {{-- Flash Success Message --}}
+                @if (session('success'))
+                    <div class="bg-green-100 text-green-800 p-4 rounded mb-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                {{-- Flash Error Message --}}
+                @if (session('error'))
                     <div class="bg-red-100 text-red-800 p-4 rounded mb-4">
-                        {{ $error }}
+                        {{ session('error') }}
                     </div>
                 @endif
 
@@ -41,11 +48,9 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold">Members Table</h2>
 
-                    <a href="{{ route('membercrud.create') }}" 
+                    <a href="{{ route('membercrud.create') }}"
                        class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                        <button>
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
+                        <i class="fa-solid fa-plus"></i>
                     </a>
                 </div>
 
@@ -56,7 +61,6 @@
                     @if($members->isEmpty())
                         <p class="text-gray-500 italic">No members found.</p>
                     @else
-                        {{-- Responsive Wrapper --}}
                         <div class="overflow-x-auto">
                             <table class="w-full table-auto border border-gray-300 rounded-lg">
                                 <thead class="bg-gray-100">
@@ -78,27 +82,32 @@
                                             <td class="px-4 py-2 border">{{ $member->name }}</td>
                                             <td class="px-4 py-2 border">{{ $member->instrument }}</td>
                                             <td class="px-4 py-2 border">{{ $member->year }}</td>
-                                            <td class="px-4 py-2 border">{{ $member->artist->name ?? 'N/A' }}</td>
                                             <td class="px-4 py-2 border">
-                                                <img src="{{ $member->image }}" 
-                                                     alt="{{ $member->name }}" 
+                                                {{ $member->artist->name ?? 'N/A' }}
+                                            </td>
+
+                                            <td class="px-4 py-2 border">
+                                                <img src="{{ $member->image }}"
+                                                     alt="{{ $member->name }}"
                                                      class="w-16 h-16 object-cover rounded shadow">
                                             </td>
+
                                             <td class="px-4 py-2 border text-center">
                                                 {{-- Edit --}}
-                                                <a href="{{ route('membercrud.edit', $member->id) }}" 
+                                                <a href="{{ route('membercrud.edit', $member->id) }}"
                                                    class="text-blue-600 hover:text-blue-800 mx-1">
                                                     <i class="fa-solid fa-pencil"></i>
                                                 </a>
 
                                                 {{-- Delete --}}
-                                                <form action="{{ route('membercrud.destroy', $member->id) }}" 
-                                                      method="POST" 
-                                                      class="inline-block mx-1" 
+                                                <form action="{{ route('membercrud.destroy', $member->id) }}"
+                                                      method="POST"
+                                                      class="inline-block mx-1"
                                                       onsubmit="return confirm('Are you sure?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-800">
+                                                    <button type="submit"
+                                                            class="text-red-600 hover:text-red-800">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -114,5 +123,4 @@
             </div>
         </div>
     </div>
-
 </x-app-layout>
