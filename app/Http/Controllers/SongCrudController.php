@@ -60,9 +60,7 @@ class SongCrudController extends Controller
 
             $response = Http::withToken($token)->delete("$apiBase/song/$id");
 
-            // Treat 2xx AND 410 as success
             if ($response->successful() || $response->status() === 410) {
-                // Decode the body manually in case Content-Type is missing
                 $data = json_decode($response->body());
 
                 $message = $data->message ?? "Song $id was successfully deleted!";
@@ -72,7 +70,6 @@ class SongCrudController extends Controller
                     ->with('success', $message);
             }
 
-            // Other failed responses
             $data = json_decode($response->body());
             $msg = $data->message ?? 'Unable to delete the song.';
 
@@ -86,6 +83,4 @@ class SongCrudController extends Controller
                 ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
         }
     }
-
-    
 }
