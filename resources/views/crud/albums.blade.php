@@ -7,6 +7,17 @@
             {{ __('Albums') }}
         </h2>
 
+        <div class="flex-1 flex justify-center space-x-4">
+            <a href="{{ route('export.artists.csv') }}"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                <i class="fa-solid fa-file-lines mr-2"></i> CSV
+            </a>
+            <a href="{{ route('export.artists.pdf') }}"
+            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                <i class="fa-solid fa-file-pdf mr-2"></i> PDF
+            </a>
+        </div>
+
         {{-- Select Data Table --}}
         <form method="GET" action="{{ request()->url() }}" class="select_crud">
             <label for="crud" class="font-semibold">

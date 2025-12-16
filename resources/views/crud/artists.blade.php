@@ -3,28 +3,47 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link rel="stylesheet" href="{{ asset('css/crudindex.css') }}">
 
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Artists') }}
-        </h2>
+        <div class="flex items-center justify-between w-full">
+            {{-- Left: Title --}}
+            <div class="flex-1">
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    {{ __('Artists') }}
+                </h2>
+            </div>
 
-        {{-- Select Data Table --}}
-        <form method="GET" action="{{ request()->url() }}" class="select_crud">
-            <label for="crud" class="font-semibold">
-                {{ __('Select Data table: ') }}
-            </label>
+            {{-- Export Buttons --}}
+            <div class="flex-1 flex justify-center space-x-4">
+                <a href="{{ route('export.artists.csv') }}"
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                    <i class="fa-solid fa-file-lines mr-2"></i> CSV
+                </a>
+                <a href="{{ route('export.artists.pdf') }}"
+                class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                    <i class="fa-solid fa-file-pdf mr-2"></i> PDF
+                </a>
+            </div>
 
-            <select name="crud" id="crud"
-                    class="border-gray-300 rounded-lg shadow-sm"
-                    onchange="location = this.value">
 
-                <option value="{{ route('crud.index') }}">-- Data tables --</option>
-                <option value="{{ route('crud.artists') }}" selected>Artists</option>
-                <option value="{{ route('crud.members') }}">Members</option>
-                <option value="{{ route('crud.albums') }}">Albums</option>
-                <option value="{{ route('crud.songs') }}">Songs</option>
-            </select>
-        </form>
-    </x-slot>
+            {{-- Right: Select Data Table --}}
+            <div class="flex-1 flex justify-end">
+                <form method="GET" action="{{ request()->url() }}" class="select_crud">
+                    <label for="crud" class="font-semibold mr-2">
+                        {{ __('Select Data table: ') }}
+                    </label>
+
+                    <select name="crud" id="crud"
+                            class="border-gray-300 rounded-lg shadow-sm"
+                            onchange="location = this.value">
+                        <option value="{{ route('crud.index') }}">-- Data tables --</option>
+                        <option value="{{ route('crud.artists') }}" selected>Artists</option>
+                        <option value="{{ route('crud.members') }}">Members</option>
+                        <option value="{{ route('crud.albums') }}">Albums</option>
+                        <option value="{{ route('crud.songs') }}">Songs</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+</x-slot>
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">

@@ -42,4 +42,9 @@ Route::resource('songcrud',SongCrudController::class);
 Route::resource('artistcrud',ArtistCrudController::class);
 Route::resource('membercrud',MemberCrudController::class);
 
+Route::get('export/artists/csv', [ArtistController::class, 'exportCsv'])->name('export.artists.csv');
+Route::get('export/artists/pdf', [ArtistController::class, 'exportPdf'])->name('export.artists.pdf');
+
+
+
 require __DIR__.'/auth.php';
