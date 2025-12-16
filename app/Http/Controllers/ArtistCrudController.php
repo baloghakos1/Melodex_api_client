@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class ArtistCrudController extends Controller
@@ -60,6 +61,122 @@ class ArtistCrudController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->route('crud.songs')
+                ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
+        }
+    }
+
+    public function create()
+    {
+        $token = session('api_token');
+        if (!$token) {
+            return redirect()->route('artistcrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        return view('crud.artist_create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'nationality' => 'required|string|max:255',
+            'image' => 'nullable|string',
+            'description' => 'required|string',
+            'is_band' => 'required|string'
+        ]);
+
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('artistcrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $response = Http::withToken($token)->post("$apiBase/artist", $validated);
+
+            if ($response->successful()) {
+                $message = $response->json()['message'] ?? 'Artist created successfully!';
+                return redirect()->route('artistcrud.index')->with('success', $message);
+            }
+
+            $msg = $response->json()['message'] ?? 'Unable to create artist.';
+            return redirect()->back()->withInput()->with('error', "API Error: $msg");
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
+        }
+    }
+
+    public function edit($id)
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('artistcrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $response = Http::withToken($token)->get("$apiBase/artist/$id");
+
+            if ($response->failed()) {
+                return redirect()->route('artistcrud.index')
+                    ->with('error', 'Failed to fetch artist.');
+            }
+
+            $artistData = $response->json()['artist'] ?? null;
+
+            if (!$artistData) {
+                return redirect()->route('artistcrud.index')
+                    ->with('error', 'Artist data not found.');
+            }
+
+            $artist = (object) $artistData;
+
+            return view('crud.artist_edit', compact('artist'));
+
+        } catch (\Exception $e) {
+            return redirect()->route('artistcrud.index')
+                ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'nationality' => 'required|string|max:255',
+            'image' => 'nullable|string',
+            'description' => 'required|string',
+            'is_band' => 'required|string'
+        ]);
+
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('artistcrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $response = Http::withToken($token)->patch("$apiBase/artist/$id", $validated);
+
+            if ($response->successful()) {
+                $message = $response->json()['message'] ?? "Artist $id updated successfully!";
+                return redirect()->route('artistcrud.index')->with('success', $message);
+            }
+
+            $msg = $response->json()['message'] ?? 'Unable to update artist.';
+            return redirect()->back()->withInput()->with('error', "API Error: $msg");
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
                 ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
         }
     }

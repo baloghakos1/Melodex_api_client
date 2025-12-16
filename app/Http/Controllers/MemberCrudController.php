@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class MemberCrudController extends Controller
@@ -83,4 +83,164 @@ class MemberCrudController extends Controller
                 ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
         }
     }
+
+    public function create()
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $responseArtists = Http::withToken($token)->get("$apiBase/artists");
+
+            if ($responseArtists->failed()) {
+                $artists = collect();
+                $error = 'Failed to fetch artists.';
+            } else {
+                $artistsData = $responseArtists->json()['artists'] ?? [];
+                $artists = collect($artistsData)->map(fn ($artist) => (object) $artist);
+                $error = null;
+            }
+
+            return view('crud.member_create', compact('artists', 'error'));
+
+        } catch (\Exception $e) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Error fetching artists: ' . $e->getMessage());
+        }
+    }
+
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name'       => 'required|string|max:255',
+            'instrument' => 'required|string|max:255',
+            'year'       => 'required|integer',
+            'artist_id'  => 'required|exists:artists,id',
+            'image'      => 'nullable|string',
+        ]);
+
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->post("$apiBase/member", $validated);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $message = $data['message'] ?? 'Member created successfully!';
+                return redirect()->route('membercrud.index')->with('success', $message);
+            }
+
+            $msg = $response->json()['message'] ?? 'Unable to create member.';
+            return redirect()->back()->withInput()
+                ->with('error', "API Error: $msg");
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
+        }
+    }
+
+    public function edit($id)
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            // Fetch member
+            $response = Http::withToken($token)->get("$apiBase/member/$id");
+
+            if ($response->failed()) {
+                return redirect()->route('membercrud.index')
+                    ->with('error', 'Failed to fetch member.');
+            }
+
+            $memberData = $response->json()['Member'] ?? null;
+
+            if (!$memberData) {
+                return redirect()->route('membercrud.index')
+                    ->with('error', 'Member data not found.');
+            }
+
+            $member = (object) $memberData;
+
+            $artistsResponse = Http::withToken($token)->get("$apiBase/artists");
+
+            $artistsData = $artistsResponse->json()['artists'] ?? [];
+
+            $artists = collect($artistsData)->map(fn($a) => (object) $a);
+
+            return view('crud.member_edit', compact('member', 'artists'));
+
+        } catch (\Exception $e) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
+        }
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name'       => 'required|string|max:255',
+            'instrument' => 'required|string|max:255',
+            'year'       => 'required|integer',
+            'artist_id'  => 'required|exists:artists,id',
+            'image'      => 'nullable|string',
+        ]);
+
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->patch("$apiBase/member/$id", [
+                    'name'       => $request->name,
+                    'instrument' => $request->instrument,
+                    'year'       => $request->year,
+                    'artist_id'  => $request->artist_id,
+                    'image'      => $request->image,
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $message = $data['message'] ?? "Member $id updated successfully!";
+                return redirect()->route('membercrud.index')->with('success', $message);
+            }
+
+            $msg = $response->json()['message'] ?? 'Unable to update member.';
+            return redirect()->route('membercrud.index')
+                ->with('error', "API Error: $msg");
+
+        } catch (\Exception $e) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
+        }
+    }
+
+
+
+
 }
