@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Barryvdh\DomPDF\Facade\Pdf; // if using barryvdh/laravel-dompdf
+use Maatwebsite\Excel\Facades\Excel; // if using Laravel Excel
+use App\Exports\ArtistsExport; // For Laravel Excel export (create this)
 
 class ArtistCrudController extends Controller
 {
@@ -180,4 +183,82 @@ class ArtistCrudController extends Controller
                 ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
         }
     }
+
+    public function exportCsv(Request $request)
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->back()->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $response = Http::withToken($token)->get("$apiBase/artists");
+
+            if ($response->failed()) {
+                return redirect()->back()->with('error', 'Failed to fetch artists from API.');
+            }
+
+            $artistsData = $response->json()['artists'] ?? [];
+
+            $csvData = "ID,Name,Nationality,Image,Description,Is Band\n";
+
+            foreach ($artistsData as $artist) {
+                $csvData .= implode(',', [
+                    $artist['id'],
+                    $artist['name'],
+                    $artist['nationality'],
+                    $artist['image'] ?? '',
+                    str_replace(',', ';', $artist['description']), // avoid breaking CSV
+                    $artist['is_band'] ? 'Yes' : 'No'
+                ]) . "\n";
+            }
+
+            $filename = "artists_" . date('Y-m-d_H-i-s') . ".csv";
+
+            return response($csvData)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', "attachment; filename=\"$filename\"");
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to fetch artists: ' . $e->getMessage());
+        }
+    }
+
+    public function exportPdf()
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('artistcrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            // Fetch artists from API
+            $response = Http::withToken($token)->get("$apiBase/artists");
+
+            if ($response->failed()) {
+                return redirect()->route('artistcrud.index')
+                    ->with('error', 'Failed to fetch artists.');
+            }
+
+            // Get artists data from the response
+            $artistsData = $response->json()['artists'] ?? []; // Access 'artists' from the response
+
+            // Pass data to the PDF view
+            $pdf = Pdf::loadView('crud.artist_pdf', ['artists' => $artistsData]);
+
+            return $pdf->download('artists_' . date('Y-m-d_H-i-s') . '.pdf');
+
+        } catch (\Exception $e) {
+            return redirect()->route('artistcrud.index')
+                ->with('error', 'Failed to fetch artists: ' . $e->getMessage());
+        }
+    }
+
 }
+
+
