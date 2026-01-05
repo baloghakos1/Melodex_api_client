@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AlbumCrudController extends Controller
 {
@@ -243,5 +244,123 @@ class AlbumCrudController extends Controller
                 ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
         }
     }
+
+    public function exportCsv(Request $request)
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->back()->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $responseAlbums  = Http::withToken($token)->get("$apiBase/albums");
+            $responseArtists = Http::withToken($token)->get("$apiBase/artists");
+
+            if ($responseAlbums->failed() || $responseArtists->failed()) {
+                return redirect()->back()->with('error', 'Failed to fetch albums or artists from API.');
+            }
+
+            $albumsData  = $responseAlbums->json()['albums'] ?? [];
+            $artistsData = $responseArtists->json()['artists'] ?? [];
+
+            // Map artists by ID
+            $artists = collect($artistsData)->keyBy('id');
+
+            $filename = "albums_" . date('Y-m-d_H-i-s') . ".csv";
+
+            $headers = [
+                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"$filename\"",
+            ];
+
+            $callback = function () use ($albumsData, $artists) {
+                $output = fopen('php://output', 'w');
+                fwrite($output, "\xEF\xBB\xBF");
+
+                fputcsv($output, [
+                    'ID',
+                    'Name',
+                    'Cover',
+                    'Year',
+                    'Genre',
+                    'Artist'
+                ], ';');
+
+                foreach ($albumsData as $album) {
+                    $artistName = $artists[$album['artist_id']]['name'] ?? 'N/A';
+
+                    fputcsv($output, [
+                        $album['id'],
+                        $album['name'],
+                        $album['cover'] ?? '',
+                        $album['year'],
+                        $album['genre'],
+                        $artistName,
+                    ], ';');
+                }
+
+                fclose($output);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to fetch albums: ' . $e->getMessage());
+        }
+    }
+
+    public function exportPdf()
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('albumcrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            // Fetch albums and artists
+            $responseAlbums = Http::withToken($token)->get("$apiBase/albums");
+            $responseArtists = Http::withToken($token)->get("$apiBase/artists");
+
+            if ($responseAlbums->failed() || $responseArtists->failed()) {
+                return redirect()->route('albumcrud.index')
+                    ->with('error', 'Failed to fetch albums or artists.');
+            }
+
+            $albumsData = $responseAlbums->json()['albums'] ?? [];
+            $artistsData = $responseArtists->json()['artists'] ?? [];
+
+            // Key artists by ID for easy lookup
+            $artists = collect($artistsData)->keyBy('id');
+
+            // Add artist names to albums
+            $albums = collect($albumsData)->map(function ($album) use ($artists) {
+                return (object) array_merge($album, [
+                    'artist_name' => $artists[$album['artist_id']]['name'] ?? 'N/A'
+                ]);
+            });
+
+            // Generate PDF
+            $pdf = Pdf::loadView('crud.album_pdf', compact('albums'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true,
+                    'chroot' => public_path(),
+                ]);
+
+            return $pdf->download('albums_' . date('Y-m-d_H-i-s') . '.pdf');
+
+        } catch (\Exception $e) {
+            return redirect()->route('albumcrud.index')
+                ->with('error', 'Failed to fetch albums: ' . $e->getMessage());
+        }
+    }
+
+
 
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SongCrudController extends Controller
 {
@@ -240,6 +241,122 @@ class SongCrudController extends Controller
                             ->with('error', 'Failed to communicate with the API: ' . $e->getMessage());
         }
     }
+
+    public function exportCsv(Request $request)
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->back()->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            $responseSongs  = Http::withToken($token)->get("$apiBase/songs");
+            $responseAlbums = Http::withToken($token)->get("$apiBase/albums");
+
+            if ($responseSongs->failed() || $responseAlbums->failed()) {
+                return redirect()->back()->with('error', 'Failed to fetch songs or albums from API.');
+            }
+
+            $songsData  = $responseSongs->json()['songs'] ?? [];
+            $albumsData = $responseAlbums->json()['albums'] ?? [];
+
+            // Map albums by ID
+            $albums = collect($albumsData)->keyBy('id');
+
+            $filename = "songs_" . date('Y-m-d_H-i-s') . ".csv";
+
+            $headers = [
+                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"$filename\"",
+            ];
+
+            $callback = function () use ($songsData, $albums) {
+                $output = fopen('php://output', 'w');
+                fwrite($output, "\xEF\xBB\xBF");
+
+                fputcsv($output, [
+                    'ID',
+                    'Name',
+                    'Lyrics',
+                    'Songwriter',
+                    'Album'
+                ], ';');
+
+                foreach ($songsData as $song) {
+                    $albumName = $albums[$song['album_id']]['name'] ?? 'N/A';
+
+                    fputcsv($output, [
+                        $song['id'],
+                        $song['name'],
+                        $song['lyrics'] ?? '',
+                        $song['songwriter'],
+                        $albumName,
+                    ], ';');
+                }
+
+                fclose($output);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to fetch songs: ' . $e->getMessage());
+        }
+    }
+
+    public function exportPdf()
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('songcrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            // Fetch songs and albums
+            $responseSongs = Http::withToken($token)->get("$apiBase/songs");
+            $responseAlbums = Http::withToken($token)->get("$apiBase/albums");
+
+            if ($responseSongs->failed() || $responseAlbums->failed()) {
+                return redirect()->route('songcrud.index')
+                    ->with('error', 'Failed to fetch songs or albums.');
+            }
+
+            $songsData = $responseSongs->json()['songs'] ?? [];
+            $albumsData = $responseAlbums->json()['albums'] ?? [];
+
+            // Key albums by ID for easy lookup
+            $albums = collect($albumsData)->keyBy('id');
+
+            // Add album names to songs
+            $songs = collect($songsData)->map(function ($song) use ($albums) {
+                return (object) array_merge($song, [
+                    'album_name' => $albums[$song['album_id']]['name'] ?? 'N/A'
+                ]);
+            });
+
+            // Generate PDF
+            $pdf = Pdf::loadView('crud.song_pdf', compact('songs'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true,
+                    'chroot' => public_path(),
+                ]);
+
+            return $pdf->download('songs_' . date('Y-m-d_H-i-s') . '.pdf');
+
+        } catch (\Exception $e) {
+            return redirect()->route('songcrud.index')
+                ->with('error', 'Failed to fetch songs: ' . $e->getMessage());
+        }
+    }
+
+
 
 
 

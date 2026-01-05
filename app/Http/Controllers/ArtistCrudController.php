@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Barryvdh\DomPDF\Facade\Pdf; // if using barryvdh/laravel-dompdf
-use Maatwebsite\Excel\Facades\Excel; // if using Laravel Excel
-use App\Exports\ArtistsExport; // For Laravel Excel export (create this)
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class ArtistCrudController extends Controller
 {
@@ -202,29 +201,48 @@ class ArtistCrudController extends Controller
 
             $artistsData = $response->json()['artists'] ?? [];
 
-            $csvData = "ID,Name,Nationality,Image,Description,Is Band\n";
-
-            foreach ($artistsData as $artist) {
-                $csvData .= implode(',', [
-                    $artist['id'],
-                    $artist['name'],
-                    $artist['nationality'],
-                    $artist['image'] ?? '',
-                    str_replace(',', ';', $artist['description']), // avoid breaking CSV
-                    $artist['is_band'] ? 'Yes' : 'No'
-                ]) . "\n";
-            }
-
             $filename = "artists_" . date('Y-m-d_H-i-s') . ".csv";
 
-            return response($csvData)
-                ->header('Content-Type', 'text/csv')
-                ->header('Content-Disposition', "attachment; filename=\"$filename\"");
+            $headers = [
+                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"$filename\"",
+            ];
+
+            $callback = function () use ($artistsData) {
+                $output = fopen('php://output', 'w');
+
+                fwrite($output, "\xEF\xBB\xBF");
+
+                fputcsv($output, [
+                    'ID',
+                    'Name',
+                    'Nationality',
+                    'Image',
+                    'Description',
+                    'Is Band'
+                ], ';');
+
+                foreach ($artistsData as $artist) {
+                    fputcsv($output, [
+                        $artist['id'],
+                        $artist['name'],
+                        $artist['nationality'],
+                        $artist['image'] ?? '',
+                        $artist['description'] ?? '',
+                        $artist['is_band'],
+                    ], ';');
+                }
+
+                fclose($output);
+            };
+
+            return response()->stream($callback, 200, $headers);
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to fetch artists: ' . $e->getMessage());
         }
     }
+
 
     public function exportPdf()
     {
@@ -237,7 +255,6 @@ class ArtistCrudController extends Controller
         }
 
         try {
-            // Fetch artists from API
             $response = Http::withToken($token)->get("$apiBase/artists");
 
             if ($response->failed()) {
@@ -245,11 +262,17 @@ class ArtistCrudController extends Controller
                     ->with('error', 'Failed to fetch artists.');
             }
 
-            // Get artists data from the response
-            $artistsData = $response->json()['artists'] ?? []; // Access 'artists' from the response
+            // Convert to objects (important)
+            $artists = collect($response->json()['artists'] ?? [])
+                ->map(fn ($artist) => (object) $artist);
 
-            // Pass data to the PDF view
-            $pdf = Pdf::loadView('crud.artist_pdf', ['artists' => $artistsData]);
+            $pdf = Pdf::loadView('crud.artist_pdf', compact('artists'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true,
+                    'chroot' => public_path(),
+                ]);
 
             return $pdf->download('artists_' . date('Y-m-d_H-i-s') . '.pdf');
 

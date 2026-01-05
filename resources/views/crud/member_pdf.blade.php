@@ -85,34 +85,34 @@
 <footer>
     Page <span class="page-number"></span>
 </footer>
-<h1>Artists</h1>
+<h1>Members</h1>
 
 <table>
     <thead>
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Nationality</th>
+            <th>Instrument</th>
+            <th>Year</th>
+            <th>Artist</th>
             <th>Image</th>
-            <th>Is Band</th>
-            <th>Description</th>
         </tr>
     </thead>
     <tbody>
-        @foreach ($artists as $artist)
+        @foreach ($members as $member)
             <tr>
-                <td>{{ $artist->id }}</td>
-                <td>{{ $artist->name }}</td>
-                <td>{{ $artist->nationality }}</td>
+                <td>{{ $member->id }}</td>
+                <td>{{ $member->name }}</td>
+                <td>{{ $member->instrument }}</td>
+                <td>{{ $member->year}}</td>
+                <td>{{ $member->artist_name }}</td>
                 <td style="text-align:center;">
-                    @if (!empty($artist->image))
-                        <img src="{{ $artist->image }}" height="50">
+                    @if (!empty($member->image))
+                        <img src="{{ $member->image }}" height="50">
                     @else
                         —
                     @endif
                 </td>
-                <td>{{ $artist->is_band}}</td>
-                <td>{{ $artist->description ?? '—' }}</td>
             </tr>
         @endforeach
     </tbody>

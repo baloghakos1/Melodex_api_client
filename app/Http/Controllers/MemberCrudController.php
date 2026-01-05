@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MemberCrudController extends Controller
 {
@@ -240,7 +241,118 @@ class MemberCrudController extends Controller
         }
     }
 
+    public function exportCsv(Request $request)
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
 
+        if (!$token) {
+            return redirect()->back()->with('error', 'Missing API token — authentication failed.');
+        }
 
+        try {
+            $responseMembers = Http::withToken($token)->get("$apiBase/members");
+            $responseArtists = Http::withToken($token)->get("$apiBase/artists");
 
+            if ($responseMembers->failed() || $responseArtists->failed()) {
+                return redirect()->back()->with('error', 'Failed to fetch members or artists from API.');
+            }
+
+            $membersData = $responseMembers->json()['members'] ?? [];
+            $artistsData = $responseArtists->json()['artists'] ?? [];
+
+            $artists = collect($artistsData)->keyBy('id');
+
+            $filename = "members_" . date('Y-m-d_H-i-s') . ".csv";
+
+            $headers = [
+                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"$filename\"",
+            ];
+
+            $callback = function () use ($membersData, $artists) {
+                $output = fopen('php://output', 'w');
+                fwrite($output, "\xEF\xBB\xBF");
+
+                fputcsv($output, [
+                    'ID',
+                    'Name',
+                    'Instrument',
+                    'Year',
+                    'Artist',
+                    'Image'
+                ], ';');
+
+                foreach ($membersData as $member) {
+                    $artistName = $artists[$member['artist_id']]['name'] ?? 'N/A';
+
+                    fputcsv($output, [
+                        $member['id'],
+                        $member['name'],
+                        $member['instrument'],
+                        $member['year'],
+                        $artistName,
+                        $member['image'] ?? '',
+                    ], ';');
+                }
+
+                fclose($output);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to fetch members: ' . $e->getMessage());
+        }
+    }
+
+    public function exportPdf()
+    {
+        $apiBase = rtrim(config('app.api_url'), '/');
+        $token = session('api_token');
+
+        if (!$token) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Missing API token — authentication failed.');
+        }
+
+        try {
+            // Fetch members and artists
+            $responseMembers = Http::withToken($token)->get("$apiBase/members");
+            $responseArtists = Http::withToken($token)->get("$apiBase/artists");
+
+            if ($responseMembers->failed() || $responseArtists->failed()) {
+                return redirect()->route('membercrud.index')
+                    ->with('error', 'Failed to fetch members or artists.');
+            }
+
+            $membersData = $responseMembers->json()['members'] ?? [];
+            $artistsData = $responseArtists->json()['artists'] ?? [];
+
+            // Key artists by ID for easy lookup
+            $artists = collect($artistsData)->keyBy('id');
+
+            // Add artist names to members
+            $members = collect($membersData)->map(function ($member) use ($artists) {
+                return (object) array_merge($member, [
+                    'artist_name' => $artists[$member['artist_id']]['name'] ?? 'N/A'
+                ]);
+            });
+
+            // Generate PDF
+            $pdf = Pdf::loadView('crud.member_pdf', compact('members'))
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true,
+                    'chroot' => public_path(),
+                ]);
+
+            return $pdf->download('members_' . date('Y-m-d_H-i-s') . '.pdf');
+
+        } catch (\Exception $e) {
+            return redirect()->route('membercrud.index')
+                ->with('error', 'Failed to fetch members: ' . $e->getMessage());
+        }
+    }
 }

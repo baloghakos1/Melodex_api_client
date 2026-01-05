@@ -4,31 +4,29 @@
         <link rel="stylesheet" href="{{ asset('css/crudindex.css') }}">
 
         <div class="flex items-center justify-between w-full">
-            {{-- Left: Title --}}
+
             <div class="flex-1">
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     {{ __('Artists') }}
                 </h2>
             </div>
 
-            {{-- Export Buttons --}}
             <div class="flex-1 flex justify-center space-x-4">
                 <a href="{{ route('export.artists.csv') }}"
                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                     <i class="fa-solid fa-file-lines mr-2"></i> CSV
                 </a>
+
                 <a href="{{ route('export.artists.pdf') }}"
                 class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
                     <i class="fa-solid fa-file-pdf mr-2"></i> PDF
                 </a>
             </div>
 
-
-            {{-- Right: Select Data Table --}}
             <div class="flex-1 flex justify-end">
                 <form method="GET" action="{{ request()->url() }}" class="select_crud">
                     <label for="crud" class="font-semibold mr-2">
-                        {{ __('Select Data table: ') }}
+                        {{ __('Select Data table:') }}
                     </label>
 
                     <select name="crud" id="crud"
@@ -36,34 +34,33 @@
                             onchange="location = this.value">
                         <option value="{{ route('crud.index') }}">-- Data tables --</option>
                         <option value="{{ route('crud.artists') }}" selected>Artists</option>
-                        <option value="{{ route('crud.members') }}">Members</option>
+                        <option value="{{ route('crud.members') }}" >Members</option>
                         <option value="{{ route('crud.albums') }}">Albums</option>
                         <option value="{{ route('crud.songs') }}">Songs</option>
                     </select>
                 </form>
             </div>
+
         </div>
-</x-slot>
+    </x-slot>
+
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
 
-                {{-- Flash Success Message --}}
                 @if (session('success'))
                     <div class="bg-green-100 text-green-800 p-4 rounded mb-4">
                         {{ session('success') }}
                     </div>
                 @endif
 
-                {{-- Flash Error Message --}}
                 @if (session('error'))
                     <div class="bg-red-100 text-red-800 p-4 rounded mb-4">
                         {{ session('error') }}
                     </div>
                 @endif
 
-                {{-- Artists Table Header --}}
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold">Artists Table</h2>
 
@@ -112,7 +109,7 @@
                                             </td>
 
                                             <td class="px-4 py-2 border text-center">
-                                                {{ $artist->is_band ? 'Yes' : 'No' }}
+                                                {{ $artist->is_band}}
                                             </td>
 
                                             <td class="px-4 py-2 border text-center">
