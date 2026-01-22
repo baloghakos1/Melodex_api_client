@@ -88,23 +88,6 @@
                         @enderror
                     </div>
 
-                    {{-- Is Band --}}
-                    <div class="mb-6">
-                        <label for="is_band" class="block text-sm font-medium text-gray-700">
-                            Is this a Band?
-                        </label>
-                        <select name="is_band"
-                                id="is_band"
-                                required
-                                class="mt-1 block w-full rounded border-gray-300 shadow-sm">
-                            <option value="yes" {{ old('is_band') == 'yes' ? 'selected' : '' }}>Yes</option>
-                            <option value="no" {{ old('is_band') == 'no' ? 'selected' : '' }}>No</option>
-                        </select>
-                        @error('is_band')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
                     {{-- Actions --}}
                     <div class="flex justify-between">
                         <a href="{{ route('artistcrud.index') }}"

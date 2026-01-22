@@ -92,7 +92,7 @@ class SongCrudController extends Controller
 
         if (!$token) {
             return redirect()->route('songcrud.index')
-                            ->with('error', 'Missing API token — authentication failed.');
+            ->with('error', 'Missing API token — authentication failed.');
         }
 
         try {
@@ -178,7 +178,7 @@ class SongCrudController extends Controller
                                 ->with('error', 'Failed to fetch song or albums.');
             }
 
-            $songData = $responseSong->json()['Song'] ?? null;
+            $songData = $responseSong->json()['song'] ?? null;
 
             if (!$songData) {
                 return redirect()->route('songcrud.index')

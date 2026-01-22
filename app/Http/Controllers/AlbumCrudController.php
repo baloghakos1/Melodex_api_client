@@ -122,10 +122,10 @@ class AlbumCrudController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:255',
+            'name'      => 'required|string|max:100',
             'cover'     => 'nullable|string',
-            'year'      => 'required|integer',
-            'genre'     => 'required|string|max:255',
+            'year'      => 'required|string|max:4',
+            'genre'     => 'required|string|max:50',
             'artist_id' => 'required|exists:artists,id',
         ]);
 
@@ -177,7 +177,7 @@ class AlbumCrudController extends Controller
                     ->with('error', 'Failed to fetch album.');
             }
 
-            $albumData = $response->json()['Album'] ?? null;
+            $albumData = $response->json()['album'] ?? null;
 
             if (!$albumData) {
                 return redirect()->route('albumcrud.index')
@@ -205,10 +205,10 @@ class AlbumCrudController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name'      => 'required|string|max:255',
+            'name'      => 'required|string|max:100',
             'cover'     => 'nullable|string',
-            'year'      => 'required|integer',
-            'genre'     => 'required|string|max:255',
+            'year'      => 'required|string|max:4',
+            'genre'     => 'required|string|max:50',
             'artist_id' => 'required|exists:artists,id',
         ]);
 

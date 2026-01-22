@@ -85,7 +85,6 @@ class ArtistCrudController extends Controller
             'nationality' => 'required|string|max:255',
             'image' => 'nullable|string',
             'description' => 'required|string',
-            'is_band' => 'required|string'
         ]);
 
         $apiBase = rtrim(config('app.api_url'), '/');
@@ -155,7 +154,6 @@ class ArtistCrudController extends Controller
             'nationality' => 'required|string|max:255',
             'image' => 'nullable|string',
             'description' => 'required|string',
-            'is_band' => 'required|string'
         ]);
 
         $apiBase = rtrim(config('app.api_url'), '/');

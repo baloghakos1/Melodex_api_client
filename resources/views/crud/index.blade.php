@@ -15,7 +15,6 @@
                     onchange="location = this.value">
                 <option value="{{ route('crud.index') }}" selected>-- Data tables --</option>
                 <option value="{{ route('crud.artists') }}">Artists</option>
-                <option value="{{ route('crud.members') }}">Members</option>
                 <option value="{{ route('crud.albums') }}">Albums</option>
                 <option value="{{ route('crud.songs') }}">Songs</option>
             </select>

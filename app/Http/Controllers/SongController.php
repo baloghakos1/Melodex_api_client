@@ -31,7 +31,6 @@ class SongController extends Controller
                     'image'       => $artistData['image'] ?? asset('image/default_artist.png'),
                     'description' => $artistData['description'] ?? '',
                     'nationality' => $artistData['nationality'] ?? null,
-                    'is_band'     => $artistData['is_band'] ?? 'no',
                 ];
 
                 $album = (object)[

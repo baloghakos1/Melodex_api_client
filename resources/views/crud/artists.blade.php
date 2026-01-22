@@ -34,7 +34,6 @@
                             onchange="location = this.value">
                         <option value="{{ route('crud.index') }}">-- Data tables --</option>
                         <option value="{{ route('crud.artists') }}" selected>Artists</option>
-                        <option value="{{ route('crud.members') }}" >Members</option>
                         <option value="{{ route('crud.albums') }}">Albums</option>
                         <option value="{{ route('crud.songs') }}">Songs</option>
                     </select>
@@ -86,7 +85,6 @@
                                         <th class="px-4 py-2 border">Nationality</th>
                                         <th class="px-4 py-2 border">Image</th>
                                         <th class="px-4 py-2 border">Description</th>
-                                        <th class="px-4 py-2 border">Is Band</th>
                                         <th class="px-4 py-2 border w-32">Actions</th>
                                     </tr>
                                 </thead>
@@ -106,10 +104,6 @@
 
                                             <td class="px-4 py-2 border text-sm">
                                                 {{ Str::limit($artist->description, 80) }}
-                                            </td>
-
-                                            <td class="px-4 py-2 border text-center">
-                                                {{ $artist->is_band}}
                                             </td>
 
                                             <td class="px-4 py-2 border text-center">

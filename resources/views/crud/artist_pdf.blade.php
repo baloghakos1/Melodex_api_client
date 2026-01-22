@@ -94,7 +94,6 @@
             <th>Name</th>
             <th>Nationality</th>
             <th>Image</th>
-            <th>Is Band</th>
             <th>Description</th>
         </tr>
     </thead>
@@ -111,7 +110,6 @@
                         —
                     @endif
                 </td>
-                <td>{{ $artist->is_band}}</td>
                 <td>{{ $artist->description ?? '—' }}</td>
             </tr>
         @endforeach
