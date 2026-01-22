@@ -70,5 +70,45 @@ class ArtistController extends Controller
         return view('artists.show', compact('artist', 'albums', 'error'));
     }
 
+    public function description(string $artist_id)
+    {
+        try {
+            $apiBase = rtrim(config('app.api_url'), '/');
 
+            $responseArtist = Http::get("$apiBase/artist/$artist_id");
+            $artistData = $responseArtist->json()['artist'] ?? null;
+
+            if (!$artistData) {
+                $artist = (object)[
+                    'id' => $artist_id,
+                    'name' => 'Unknown Artist',
+                    'image' => asset('image/default_artist.png'),
+                    'description' => '',
+                    'nationality' => null,
+                ];
+                $error = "Failed to fetch artist data.";
+            } else {
+                $artist = (object)[
+                    'id' => $artistData['id'] ?? $artist_id,
+                    'name' => $artistData['name'] ?? 'Unknown Artist',
+                    'image' => $artistData['image'] ?? asset('image/default_artist.png'),
+                    'description' => $artistData['description'] ?? '',
+                    'nationality' => $artistData['nationality'] ?? null,
+                ];
+
+                $error = null;
+            }
+        } catch (\Exception $e) {
+            $artist = (object)[
+                'id' => $artist_id,
+                'name' => 'Unknown Artist',
+                'image' => asset('image/default_artist.png'),
+                'description' => '',
+                'nationality' => null,
+            ];
+            $error = "Error fetching artist: " . $e->getMessage();
+        }
+
+        return view('artists.description', compact('artist', 'error'));
+    }
 }   

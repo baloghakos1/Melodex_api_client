@@ -29,13 +29,12 @@ Route::middleware('auth')->group(function () {
 });
 Route::get('/artists', [ArtistController::class, 'index'])->name('artists.index');
 Route::get('/artist/{artist_id}', [ArtistController::class, 'show'])->name('artists.show');
-Route::get('/artist/{artist_id}/description', [MemberController::class, 'index'])->name('artists.description');
+Route::get('/artist/{artist_id}/description', [ArtistController::class, 'description'])->name('artists.description');
 Route::get('/artist/{artist_id}/{albumid}', [SongController::class, 'index'])->name('artists.songs');
 
 Route::get('/crud.albums', [AlbumCrudController::class, 'index'])->name('crud.albums');
 Route::get('/crud.songs', [SongCrudController::class, 'index'])->name('crud.songs');
 Route::get('/crud.artists', [ArtistCrudController::class, 'index'])->name('crud.artists');
-Route::get('/crud.members', [MemberCrudController::class, 'index'])->name('crud.members');
 
 Route::resource('albumcrud',AlbumCrudController::class);
 Route::resource('songcrud',SongCrudController::class);
@@ -44,12 +43,10 @@ Route::resource('membercrud',MemberCrudController::class);
 
 Route::get('export/artists/csv', [ArtistCrudController::class, 'exportCsv'])->name('export.artists.csv');
 Route::get('export/albums/csv', [AlbumCrudController::class, 'exportCsv'])->name('export.albums.csv');
-Route::get('export/members/csv', [MemberCrudController::class, 'exportCsv'])->name('export.members.csv');
 Route::get('export/songs/csv', [SongCrudController::class, 'exportCsv'])->name('export.songs.csv');
 
 Route::get('export/artists/pdf', [ArtistCrudController::class, 'exportPdf'])->name('export.artists.pdf');
 Route::get('export/albums/pdf', [AlbumCrudController::class, 'exportPdf'])->name('export.albums.pdf');
-Route::get('export/members/pdf', [MemberCrudController::class, 'exportPdf'])->name('export.members.pdf');
 Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('export.songs.pdf');
 
 
