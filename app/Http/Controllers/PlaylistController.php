@@ -10,10 +10,11 @@ class PlaylistController extends Controller
     {
         try {
             $token = session('api_token');
-            
+
             if (!$token) {
                 $error = 'No API token found in session.';
-                return view('playlists.index', compact('error'));
+                $playlists = collect();
+                return view('playlists.index', compact('playlists', 'error'));
             }
 
             $user = auth()->user();
@@ -27,7 +28,8 @@ class PlaylistController extends Controller
                 $error = "Failed to fetch playlists: " . ($response->json('message') ?? 'Unknown error');
             } else {
                 $data = $response->json();
-                $playlists = collect($data['playlists'] ?? [])->map(fn($playlist) => (object) $playlist);
+                $playlists = collect($data['playlists'] ?? [])
+                    ->map(fn($playlist) => (object) $playlist);
                 $error = null;
             }
         } catch (\Exception $e) {
