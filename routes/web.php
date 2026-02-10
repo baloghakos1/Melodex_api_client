@@ -50,6 +50,6 @@ Route::get('export/artists/pdf', [ArtistCrudController::class, 'exportPdf'])->na
 Route::get('export/albums/pdf', [AlbumCrudController::class, 'exportPdf'])->name('export.albums.pdf');
 Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('export.songs.pdf');
 
-Route::get('/playlists', [PlaylistController::class, 'index'])->name('playlists.index');
+Route::resource('playlists',PlaylistController::class);
 
 require __DIR__.'/auth.php';
