@@ -83,8 +83,8 @@
                                         <th class="px-4 py-2 border">ID</th>
                                         <th class="px-4 py-2 border">Name</th>
                                         <th class="px-4 py-2 border">Lyrics</th>
-                                        <th class="px-4 py-2 border">Songwriter</th>
                                         <th class="px-4 py-2 border">Album</th>
+                                        <th class="px-4 py-2 border">Stream URL</th>
                                         <th class="px-4 py-2 border w-32">Actions</th>
                                     </tr>
                                 </thead>
@@ -95,8 +95,8 @@
                                             <td class="px-4 py-2 border">{{ $song->id }}</td>
                                             <td class="px-4 py-2 border">{{ $song->name }}</td>
                                             <td class="px-4 py-2 border">{{ $song->lyrics }}</td>
-                                            <td class="px-4 py-2 border">{{ $song->songwriter }}</td>
-                                            <td class="px-4 py-2 border">{{ $song->album->name ?? 'N/A' }}</td>
+                                            <td class="px-4 py-2 border">{{ $song->album->name }}</td>
+                                            <td class="px-4 py-2 border">{{ $song->stream_url }}</td>
                                             <td class="px-4 py-2 border text-center">
                                                 {{-- Edit --}}
                                                 <a href="{{ route('songcrud.edit', $song->id) }}" 

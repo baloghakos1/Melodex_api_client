@@ -28,6 +28,7 @@
                             <div class="song-details">
                                 <h1 class="song-name">{{ $song->name }}</h1>
                                 <h3 class="song-artist">{{ $artist->name ?? 'Unknown Artist' }}</h3>
+                                <p>{{ $song->stream_url }}</p>
                             </div>
                         </div>
                     @endforeach

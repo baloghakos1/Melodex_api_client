@@ -47,7 +47,7 @@
                         @foreach($albums as $album)
                             <a href="{{ route('artists.songs', [
                                 'artist_id' => $artist->id,
-                                'albumid' => $album->id
+                                'album_id' => $album->id
                             ]) }}"
                                class="block bg-gray-50 hover:bg-gray-100 p-4 rounded-lg shadow transition">
                                <div class="album-info">
@@ -57,7 +57,7 @@
                                         class="album-cover">
 
                                     <h1 class="album-name">{{ $album->name }}</h1>
-                                    <h3 class="album-release">{{ $album->year }}</h3>
+                                    <h3 class="album-release">{{ $album->year }} {{ $album->id }}</h3>
                                     </button>
                                 </div>
                             </a>

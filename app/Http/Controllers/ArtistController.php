@@ -37,6 +37,7 @@ class ArtistController extends Controller
 
             $responseArtist = Http::get("$apiBase/artist/$artist_id");
 
+
             if ($responseAlbums->failed() || $responseArtist->failed()) {
                 $artist = null;
                 $albums = collect();
@@ -66,6 +67,7 @@ class ArtistController extends Controller
             $albums = collect();
             $error = "Error fetching artist: " . $e->getMessage();
         }
+
 
         return view('artists.show', compact('artist', 'albums', 'error'));
     }
