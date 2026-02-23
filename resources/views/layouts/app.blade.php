@@ -50,28 +50,30 @@
                 }
             });
 
-            // Record playing state the moment a link is clicked — earliest possible moment
+            // Only capture playing state when a navigation link is clicked
+            // _wasPlaying is null by default so turbo:load won't auto-resume on pause clicks
+            window._wasPlaying = null;
+
             document.addEventListener('turbo:click', function () {
                 const audio = document.getElementById('audioPlayer');
                 window._wasPlaying = audio && !audio.paused;
             });
 
-            // After every Turbo page swap
             document.addEventListener('turbo:load', function () {
                 const audio = document.getElementById('audioPlayer');
 
-                // Resume immediately if it was playing when the link was clicked
-                if (window._wasPlaying && audio && audio.src && audio.paused) {
+                // Only resume if a turbo navigation happened AND audio was playing
+                if (window._wasPlaying === true && audio && audio.src && audio.paused) {
                     audio.play().catch(() => {});
-                    window._wasPlaying = false;
                 }
 
-                // Re-bind song items on the new page
+                // Reset so normal pause clicks aren't overridden
+                window._wasPlaying = null;
+
                 if (window.musicPlayer && window.musicPlayer.songs.length > 0) {
                     window.musicPlayer.bindSongItems();
                 }
 
-                // Allow songs pages to re-init the player
                 window._musicPlayerInitialized = false;
             });
         </script>
