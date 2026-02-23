@@ -15,7 +15,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
+        <!-- Scripts (Turbo is imported inside app.js) -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
@@ -37,7 +37,43 @@
             </main>
         </div>
 
-        <!-- Global Music Player -->
-        <x-music-player />
+        <!-- Global Music Player — data-turbo-permanent keeps it alive across page navigations -->
+        <div id="music-player-permanent" data-turbo-permanent>
+            <x-music-player />
+        </div>
+
+        <script>
+            // On first load
+            document.addEventListener('DOMContentLoaded', function () {
+                if (!window._musicPlayerInitialized) {
+                    window.musicPlayer.init();
+                }
+            });
+
+            // Record playing state the moment a link is clicked — earliest possible moment
+            document.addEventListener('turbo:click', function () {
+                const audio = document.getElementById('audioPlayer');
+                window._wasPlaying = audio && !audio.paused;
+            });
+
+            // After every Turbo page swap
+            document.addEventListener('turbo:load', function () {
+                const audio = document.getElementById('audioPlayer');
+
+                // Resume immediately if it was playing when the link was clicked
+                if (window._wasPlaying && audio && audio.src && audio.paused) {
+                    audio.play().catch(() => {});
+                    window._wasPlaying = false;
+                }
+
+                // Re-bind song items on the new page
+                if (window.musicPlayer && window.musicPlayer.songs.length > 0) {
+                    window.musicPlayer.bindSongItems();
+                }
+
+                // Allow songs pages to re-init the player
+                window._musicPlayerInitialized = false;
+            });
+        </script>
     </body>
 </html>
