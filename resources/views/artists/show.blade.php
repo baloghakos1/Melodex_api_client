@@ -57,7 +57,8 @@
                                         class="album-cover">
 
                                     <h1 class="album-name">{{ $album->name }}</h1>
-                                    <h3 class="album-release">{{ $album->year }} {{ $album->id }}</h3>
+                                    <h3 class="album-release">{{ $album->year }}</h3>
+                                    <h4 class="album-songs-count">{{ $album->songs_count }} songs</h4>
                                     </button>
                                 </div>
                             </a>

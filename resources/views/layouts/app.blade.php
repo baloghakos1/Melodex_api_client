@@ -8,6 +8,8 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <link rel="icon" type="image/x-icon" href="{{ asset('front_view.ico') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet" href="{{ asset('css/songs.css') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -34,5 +36,8 @@
                 {{ $slot }}
             </main>
         </div>
+
+        <!-- Global Music Player -->
+        <x-music-player />
     </body>
 </html>

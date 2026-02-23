@@ -57,7 +57,12 @@ class ArtistController extends Controller
                 ];
 
                 $albums = collect($albumsData['albums'] ?? [])
-                    ->map(fn($album) => (object) $album);
+                    ->map(function($album) use ($apiBase) {
+                        $songResponse = Http::get("$apiBase/album/{$album['id']}/songs");
+                        $songsCount = count($songResponse->json()['songs'] ?? []);
+                        
+                        return (object) array_merge((array) $album, ['songs_count' => $songsCount]);
+                    });
 
                 $error = null;
             }
