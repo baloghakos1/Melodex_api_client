@@ -1,0 +1,122 @@
+header > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Playlist Card Button */
+.playlist-card-btn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #f9f9f9;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.playlist-card-btn:hover {
+    background: #ececec;
+}
+
+/* Playlist Icon */
+.playlist-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+/* Playlist Text Container */
+.playlist-text {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Playlist Name */
+.playlist-name {
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Optional Subtitle (song count, etc.) */
+.playlist-sub {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #666;
+}
+
+.playlist-dots-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: #f3f4f6; /* light gray */
+    transition: background 0.2s ease;
+    border: none;
+}
+
+.playlist-dots-btn:hover {
+    background: #e5e7eb; /* slightly darker gray on hover */
+}
+
+.playlist-dots-btn i {
+    font-size: 1.6rem;
+    color: #374151; /* dark gray */
+}
+
+/* Dropdown Menu */
+.playlist-dropdown {
+    position: absolute;
+    top: 60px; /* below the button */
+    right: 0;
+    width: 200px; /* wider than before */
+    background-color: #fff;
+    border: 1px solid #d1d5db; /* Tailwind gray-300 */
+    border-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    z-index: 100;
+    padding: 0.5rem 0;
+}
+
+/* Dropdown links */
+.playlist-dropdown a,
+.playlist-dropdown button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    color: #374151;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.playlist-dropdown a:hover,
+.playlist-dropdown button:hover {
+    background-color: #f3f4f6;
+}
+
+/* Delete button in dropdown */
+.playlist-dropdown button.delete-btn {
+    color: #dc2626; /* Tailwind red-600 */
+}
+
+.playlist-dropdown button.delete-btn:hover {
+    background-color: #fee2e2; /* light red on hover */
+}

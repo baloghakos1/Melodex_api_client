@@ -23,7 +23,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('playlists.update', $playlist->id) }}">
+                <form method="POST" action="{{ route('playlists.update', $playlist->id) }}" id="editPlaylistForm">
                     @csrf
                     @method('PUT')
 
@@ -51,6 +51,7 @@
                         </a>
 
                         <button type="submit"
+                                id="updateBtn"
                                 class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                             Update Playlist
                         </button>
@@ -61,4 +62,17 @@
             </div>
         </div>
     </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('editPlaylistForm');
+    const button = document.getElementById('updateBtn');
+
+    form.addEventListener('submit', function () {
+        button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+        button.innerText = 'Updating...';
+    });
+});
+</script>
 </x-app-layout>

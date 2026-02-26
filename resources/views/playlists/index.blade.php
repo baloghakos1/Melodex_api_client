@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        <link rel="stylesheet" href="{{ asset('css/crudindex.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/playlist.css') }}">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Playlists') }}
         </h2>
@@ -38,60 +38,45 @@
                     </div>
                 @else
                 @foreach ($playlists as $playlist)
-                    <div 
-                        x-data="{ open: false }" 
-                        class="playlist-info mb-4 p-4 bg-gray-100 rounded-lg flex justify-between items-center relative"
-                    >
-                        <!-- Playlist Name -->
-                        <h3 class="text-xl font-semibold">
-                            {{ $playlist->name }}
-                        </h3>
+                <div x-data="{ open: false }" class="relative mb-4">
 
-                        <!-- 3 Dots Button -->
+                    <!-- Playlist Card -->
+                    <div class="playlist-card-btn flex justify-between items-center">
+                        <a href="{{ route('playlists.songs', $playlist->id) }}" class="flex items-center gap-4 flex-1">
+                            <div class="flex items-center gap-4">
+                                <div class="playlist-icon">
+                                    <i class="fa-solid fa-music"></i>
+                                </div>
+                                <div class="playlist-text">
+                                    <h1 class="playlist-name">{{ $playlist->name }}</h1>
+                                    <p class="playlist-sub">View songs</p>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- 3 Dots Button Inside Card -->
                         <div class="relative">
-                            <button 
-                                @click="open = !open"
-                                style="
-                                    width: 55px;
-                                    height: 40px;
-                                    border-radius: 50%;
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    border: none;
-                                    cursor: pointer;
-                                "
-                            >
-                            <i class="fa-solid fa-ellipsis-vertical" style="pointer-events: none; font-size: 1.5rem; color: #374151;"></i>
+                            <button @click="open = !open" class="playlist-dots-btn">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
                             </button>
 
-                            <div 
-                                x-show="open" 
-                                @click.away="open = false"
-                                x-transition
-                                class="absolute right-0 top-12 w-40 bg-white border rounded-lg shadow-xl z-50"
-                            >
-                                <a href="{{ route('playlists.edit', $playlist->id) }}"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    Edit
-                                </a>
-
-                                <form action="{{ route('playlists.destroy', $playlist->id) }}" 
-                                    method="POST"
-                                    onsubmit="return confirm('Delete this playlist?');">
+                            <!-- Dropdown Menu -->
+                            <div x-show="open" @click.away="open = false" x-transition class="playlist-dropdown" style="display: none;">
+                                <a href="{{ route('playlists.edit', $playlist->id) }}">Edit</a>
+                                <form action="{{ route('playlists.destroy', $playlist->id) }}" method="POST" onsubmit="return confirm('Delete this playlist?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit"
-                                        class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                        Delete
-                                    </button>
+                                    <button type="submit" class="delete-btn">Delete</button>
                                 </form>
                             </div>
                         </div>
                     </div>
+
+                </div>
                 @endforeach
 
                 @endif
+
 
             </div>
         </div>

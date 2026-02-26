@@ -42,6 +42,7 @@ Route::resource('songcrud',SongCrudController::class);
 Route::resource('artistcrud',ArtistCrudController::class);
 Route::resource('membercrud',MemberCrudController::class);
 
+/*
 Route::get('export/artists/csv', [ArtistCrudController::class, 'exportCsv'])->name('export.artists.csv');
 Route::get('export/albums/csv', [AlbumCrudController::class, 'exportCsv'])->name('export.albums.csv');
 Route::get('export/songs/csv', [SongCrudController::class, 'exportCsv'])->name('export.songs.csv');
@@ -49,7 +50,9 @@ Route::get('export/songs/csv', [SongCrudController::class, 'exportCsv'])->name('
 Route::get('export/artists/pdf', [ArtistCrudController::class, 'exportPdf'])->name('export.artists.pdf');
 Route::get('export/albums/pdf', [AlbumCrudController::class, 'exportPdf'])->name('export.albums.pdf');
 Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('export.songs.pdf');
+*/
 
 Route::resource('playlists',PlaylistController::class);
+Route::get('/playlists/{id}/songs', [PlaylistController::class, 'songs'])->name('playlists.songs');
 
 require __DIR__.'/auth.php';

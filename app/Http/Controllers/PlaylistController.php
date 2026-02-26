@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
+
 class PlaylistController extends Controller
 {
     public function index()
@@ -95,6 +96,12 @@ class PlaylistController extends Controller
                 $data = $response->json();
                 $message = $data['message'] ?? 'Playlist created successfully!';
                 return redirect()->route('playlists.index')->with('success', $message);
+            }
+
+            if ($response->status() === 409) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Playlist already exists.');
             }
 
             $data = $response->json();
@@ -196,5 +203,73 @@ class PlaylistController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function songs($playlistId)
+    {
+        $user = auth()->user();
+        $token = session('api_token');
+        $apiBase = rtrim(config('app.api_url'), '/');
+
+        if (!$token) {
+            return redirect()->route('playlists.index')
+                ->with('error', 'Missing API token.');
+        }
+
+        try {
+            // Fetch playlist info
+            $responsePlaylist = Http::withToken($token)
+                ->get("$apiBase/user/{$user->id}/playlist/{$playlistId}");
+
+            // Fetch songs in the playlist
+            $responseSongs = Http::withToken($token)
+                ->get("$apiBase/user/{$user->id}/playlist/{$playlistId}/songs");
+
+            if ($responsePlaylist->failed() || $responseSongs->failed()) {
+                $playlist = null;
+                $songs = collect();
+                $error = "Failed to fetch playlist or songs";
+            } else {
+                $playlistData = $responsePlaylist->json()['playlist'] ?? null;
+                $songsData = $responseSongs->json()['songs'] ?? [];
+
+                $playlist = (object)[
+                    'id' => $playlistId,
+                    'name' => $playlistData['name'] ?? 'Unknown Playlist',
+                ];
+
+                $songs = collect($songsData)->map(function($song) use ($token, $apiBase) {
+                    // Fetch artist info
+                    $artist = $song['artist'] ?? null;
+                    $artistName = $artist['name'] ?? 'Unknown Artist';
+                    $artistId = $artist['id'] ?? null;
+
+                    // Fetch album info if available
+                    $album = $song['album'] ?? null;
+                    $albumName = $album['name'] ?? 'Unknown Album';
+                    $albumCover = $album['cover'] ?? asset('image/default_album.png');
+                    $albumId = $album['id'] ?? null;
+
+                    return (object)[
+                        'id' => $song['id'] ?? null,
+                        'name' => $song['name'] ?? 'Unknown Song',
+                        'artist_name' => $artistName,
+                        'artist_id' => $artistId,
+                        'album_name' => $albumName,
+                        'album_cover' => $albumCover,
+                        'album_id' => $albumId,
+                    ];
+                });
+
+                $error = null;
+            }
+
+        } catch (\Exception $e) {
+            $playlist = null;
+            $songs = collect();
+            $error = "Error fetching playlist or songs: " . $e->getMessage();
+        }
+
+        return view('playlists.songs', compact('playlist', 'songs', 'error'));
     }
 }
