@@ -238,26 +238,18 @@ class PlaylistController extends Controller
                     'name' => $playlistData['name'] ?? 'Unknown Playlist',
                 ];
 
-                $songs = collect($songsData)->map(function($song) use ($token, $apiBase) {
-                    // Fetch artist info
-                    $artist = $song['artist'] ?? null;
-                    $artistName = $artist['name'] ?? 'Unknown Artist';
-                    $artistId = $artist['id'] ?? null;
-
-                    // Fetch album info if available
-                    $album = $song['album'] ?? null;
-                    $albumName = $album['name'] ?? 'Unknown Album';
-                    $albumCover = $album['cover'] ?? asset('image/default_album.png');
-                    $albumId = $album['id'] ?? null;
+                $songs = collect($songsData)->map(function ($song) {
 
                     return (object)[
                         'id' => $song['id'] ?? null,
                         'name' => $song['name'] ?? 'Unknown Song',
-                        'artist_name' => $artistName,
-                        'artist_id' => $artistId,
-                        'album_name' => $albumName,
-                        'album_cover' => $albumCover,
-                        'album_id' => $albumId,
+                
+                        'artist_name' => $song['album']['artist']['name'] ?? 'Unknown Artist',
+                        'artist_id' => $song['album']['artist']['id'] ?? null,
+                
+                        'album_name' => $song['album']['name'] ?? 'Unknown Album',
+                        'album_cover' => $song['album']['cover'] ?? asset('image/default_album.png'),
+                        'album_id' => $song['album']['id'] ?? null,
                     ];
                 });
 

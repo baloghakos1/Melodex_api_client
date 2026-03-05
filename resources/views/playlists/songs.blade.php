@@ -26,8 +26,8 @@
                     @foreach($songs as $song)
                         <div class="song-info flex items-center gap-4 mb-4">
                             <img class="song-cover w-20 h-20 object-cover rounded" 
-                                 src="{{ $song->cover ?? asset('image/default_song.png') }}" 
-                                 alt="{{ $song->name }}">
+                                 src="{{ $song->album_cover ?? asset('image/default_song.png') }}" 
+                                 alt="{{ $song->album_name }}">
                             <div class="song-details">
                                 <h1 class="song-name">{{ $song->name }}</h1>
                                 <h3 class="song-artist">{{ $song->artist_name ?? 'Unknown Artist' }}</h3>
