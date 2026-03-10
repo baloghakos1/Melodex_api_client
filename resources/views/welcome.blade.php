@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Melodex</title>
     <link href="{{ asset('css/style.css') }}" rel="stylesheet">
     <link href="{{ asset('css/btn.css') }}" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ asset('front_view.ico') }}">
