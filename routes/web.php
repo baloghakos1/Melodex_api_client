@@ -54,5 +54,6 @@ Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('
 
 Route::resource('playlists',PlaylistController::class);
 Route::get('/playlists/{id}/songs', [PlaylistController::class, 'songs'])->name('playlists.songs');
+Route::delete('/playlists/{playlist}/songs/{song}', [PlaylistController::class, 'removeSong'])->name('playlist.removeSong');
 
 require __DIR__.'/auth.php';

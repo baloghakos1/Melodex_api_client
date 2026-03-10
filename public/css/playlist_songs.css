@@ -1,0 +1,130 @@
+/* Song Row Wrapper */
+.song-row-wrapper {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+/* Song Row */
+.song-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 12px 16px;
+    transition: background 0.3s ease;
+}
+
+.song-row:hover {
+    background: #ececec;
+}
+
+/* Left Side (cover + text) */
+.song-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Song Cover */
+.song-cover {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* Song Details */
+.song-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.song-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.song-artist {
+    font-size: 0.9rem;
+    margin: 0;
+    color: #666;
+}
+
+/* Menu Container */
+.song-menu {
+    position: relative;
+}
+
+/* 3 Dots Button */
+.song-dots-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.song-dots-btn:hover {
+    background: #e5e7eb;
+}
+
+.song-dots-btn i {
+    font-size: 1.4rem;
+    color: #374151;
+}
+
+/* Dropdown Menu */
+.song-dropdown {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    width: 200px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    z-index: 100;
+    padding: 0.5rem 0;
+}
+
+/* Dropdown Button */
+.song-remove-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #dc2626;
+}
+
+.song-dropdown a {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    color: #374151;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.song-remove-btn:hover {
+    background-color: #fee2e2;
+}
+
+.song-dropdown a:hover {
+    background-color: #f3f4f6;
+}

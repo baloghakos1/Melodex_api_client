@@ -264,4 +264,35 @@ class PlaylistController extends Controller
 
         return view('playlists.songs', compact('playlist', 'songs', 'error'));
     }
+
+    public function removeSong($playlistId, $songId)
+    {
+        $user = auth()->user();
+        $token = session('api_token');
+        $apiBase = rtrim(config('app.api_url'), '/');
+
+        if (!$token) {
+            return redirect()->back()
+                ->with('error', 'Missing API token.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->delete("$apiBase/user/{$user->id}/playlist/{$playlistId}/song/{$songId}");
+
+            if ($response->successful() || $response->status() === 410) {
+                $data = $response->json();
+                $message = $data['message'] ?? 'Song removed from playlist.';
+                return redirect()->back()->with('success', $message);
+            }
+
+            $data = $response->json();
+            $message = $data['message'] ?? 'Failed to remove song from playlist.';
+            return redirect()->back()->with('error', $message);
+
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'API communication error: ' . $e->getMessage());
+        }
+    }
 }
