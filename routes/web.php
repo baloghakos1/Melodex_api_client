@@ -8,6 +8,7 @@ use App\Http\Controllers\SongController;
 use App\Http\Controllers\AlbumCrudController;
 use App\Http\Controllers\SongCrudController;
 use App\Http\Controllers\ArtistCrudController;
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -47,6 +48,7 @@ Route::get('export/artists/pdf', [ArtistCrudController::class, 'exportPdf'])->na
 Route::get('export/albums/pdf', [AlbumCrudController::class, 'exportPdf'])->name('export.albums.pdf');
 Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('export.songs.pdf');
 
-
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search/preview', [SearchController::class, 'preview'])->name('search.preview');
 
 require __DIR__.'/auth.php';

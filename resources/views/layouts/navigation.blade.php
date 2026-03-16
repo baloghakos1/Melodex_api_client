@@ -12,9 +12,6 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
                     <x-nav-link :href="route('artists.index')" :active="request()->routeIs('artists.index')">
                         {{ __('Artists') }}
                     </x-nav-link>
@@ -22,6 +19,83 @@
                         {{ __('Crud') }}
                     </x-nav-link>
                 </div>
+
+                <!-- Search Bar -->
+                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    <div class="relative" id="searchContainer">
+                        <form action="{{ route('search') }}" method="GET" class="flex items-center">
+                            <input 
+                                type="text" 
+                                name="q" 
+                                id="searchInput"
+                                placeholder="Search..." 
+                                autocomplete="off"
+                                class="w-48 lg:w-64 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            >
+                            <button type="submit" class="ms-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                        </form>
+
+                        <div id="searchPopup" class="hidden absolute top-full right-0 mt-2 w-[350px] bg-white border border-gray-200 rounded-lg shadow-2xl z-[100] overflow-hidden">
+                            <div id="popupContent" class="p-2 max-h-96 overflow-y-auto text-gray-900">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+                @push('scripts')
+                <script>
+                    const searchInput = document.getElementById('searchInput');
+                    const searchPopup = document.getElementById('searchPopup');
+                    const popupContent = document.getElementById('popupContent');
+                    let debounceTimer;
+
+                    searchInput.addEventListener('input', function() {
+                        clearTimeout(debounceTimer);
+                        const query = this.value;
+
+                        if (query.length < 2) {
+                            searchPopup.classList.add('hidden');
+                            return;
+                        }
+
+                        debounceTimer = setTimeout(() => {
+                            fetch(`/search/preview?q=${query}`)
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.length > 0) {
+                                        let html = '';
+                                        data.forEach(item => {
+                                            const cover = item.searchable.cover || 'https://via.placeholder.com/40';
+                                            html += `
+                                                <div class="flex items-center p-2 hover:bg-gray-100 cursor-pointer rounded-md transition mb-1">
+                                                    <img src="${cover}" class="w-10 h-10 rounded object-cover mr-3">
+                                                    <div class="flex flex-col">
+                                                        <span class="text-sm font-semibold text-gray-800">${item.title}</span>
+                                                        <span class="text-xs text-gray-500 uppercase">${item.type}</span>
+                                                    </div>
+                                                </div>`;
+                                        });
+                                        popupContent.innerHTML = html;
+                                        searchPopup.classList.remove('hidden');
+                                    } else {
+                                        popupContent.innerHTML = '<p class="text-xs text-gray-400 p-2">No matches found.</p>';
+                                        searchPopup.classList.remove('hidden');
+                                    }
+                                });
+                        }, 300); 
+                    });
+
+                    // Close popup if user clicks outside
+                    document.addEventListener('click', (e) => {
+                        if (!document.getElementById('searchContainer').contains(e.target)) {
+                            searchPopup.classList.add('hidden');
+                        }
+                    });
+                </script>
+                @endpush
             </div>
 
             <!-- Settings Dropdown -->
@@ -76,6 +150,18 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+        </div>
+
+        <!-- Responsive Search -->
+        <div class="px-4 py-3 border-t border-gray-200">
+            <form action="{{ route('search') }}" method="GET" class="flex items-center gap-2">
+                <input type="text" name="q" placeholder="Search..." class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <button type="submit" class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </button>
+            </form>
         </div>
 
         <!-- Responsive Settings Options -->

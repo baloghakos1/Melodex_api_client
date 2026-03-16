@@ -43,15 +43,12 @@
         </div>
 
         <script>
-            // On first load
             document.addEventListener('DOMContentLoaded', function () {
                 if (!window._musicPlayerInitialized) {
                     window.musicPlayer.init();
                 }
             });
 
-            // Only capture playing state when a navigation link is clicked
-            // _wasPlaying is null by default so turbo:load won't auto-resume on pause clicks
             window._wasPlaying = null;
 
             document.addEventListener('turbo:click', function () {
@@ -62,12 +59,10 @@
             document.addEventListener('turbo:load', function () {
                 const audio = document.getElementById('audioPlayer');
 
-                // Only resume if a turbo navigation happened AND audio was playing
                 if (window._wasPlaying === true && audio && audio.src && audio.paused) {
                     audio.play().catch(() => {});
                 }
 
-                // Reset so normal pause clicks aren't overridden
                 window._wasPlaying = null;
 
                 if (window.musicPlayer && window.musicPlayer.songs.length > 0) {
@@ -77,5 +72,6 @@
                 window._musicPlayerInitialized = false;
             });
         </script>
+        @stack('scripts')
     </body>
 </html>
