@@ -14,7 +14,7 @@
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+            <div class="bg-white shadow sm:rounded-lg p-6">
 
                 @if($error)
                     <div class="bg-red-100 text-red-800 p-4 rounded mb-4">
