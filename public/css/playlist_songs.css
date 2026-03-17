@@ -128,3 +128,8 @@
 .song-dropdown a:hover {
     background-color: #f3f4f6;
 }
+
+body {
+    padding-bottom: 200px;
+    background-color: #f3f4f6;
+}

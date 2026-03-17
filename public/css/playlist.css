@@ -120,3 +120,8 @@ header > div {
 .playlist-dropdown button.delete-btn:hover {
     background-color: #fee2e2; /* light red on hover */
 }
+
+body {
+    padding-bottom: 200px;
+    background-color: #f3f4f6;
+}

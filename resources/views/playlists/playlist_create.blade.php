@@ -23,7 +23,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('playlists.store') }}" onsubmit="disableButton(this)">
+                <form method="POST" action="{{ route('playlists.store') }}" id="createPlaylistForm">
                     @csrf
 
                     {{-- Playlist Name --}}
@@ -50,7 +50,7 @@
                         </a>
 
                         <button type="submit"
-                                id="submitBtn"
+                                id="createBtn"
                                 class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
                             Create Playlist
                         </button>
@@ -62,14 +62,15 @@
         </div>
     </div>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('form');
-    const button = form.querySelector('button[type="submit"]');
-
-    form.addEventListener('submit', function () {
-        button.disabled = true;
-        button.innerText = 'Creating...';
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('createPlaylistForm');
+        const button = document.getElementById('createBtn');
+    
+        form.addEventListener('submit', function () {
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+            button.innerText = 'Creating...';
+        });
     });
-});
 </script>
 </x-app-layout>
