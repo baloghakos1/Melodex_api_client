@@ -3,11 +3,11 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ArtistController;
-use App\Http\Controllers\MemberController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\AlbumCrudController;
 use App\Http\Controllers\SongCrudController;
 use App\Http\Controllers\ArtistCrudController;
+use App\Http\Controllers\PlaylistController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -39,6 +39,7 @@ Route::resource('albumcrud',AlbumCrudController::class);
 Route::resource('songcrud',SongCrudController::class);
 Route::resource('artistcrud',ArtistCrudController::class);
 
+/*
 Route::get('export/artists/csv', [ArtistCrudController::class, 'exportCsv'])->name('export.artists.csv');
 Route::get('export/albums/csv', [AlbumCrudController::class, 'exportCsv'])->name('export.albums.csv');
 Route::get('export/songs/csv', [SongCrudController::class, 'exportCsv'])->name('export.songs.csv');
@@ -46,7 +47,10 @@ Route::get('export/songs/csv', [SongCrudController::class, 'exportCsv'])->name('
 Route::get('export/artists/pdf', [ArtistCrudController::class, 'exportPdf'])->name('export.artists.pdf');
 Route::get('export/albums/pdf', [AlbumCrudController::class, 'exportPdf'])->name('export.albums.pdf');
 Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('export.songs.pdf');
+*/
 
-
+Route::resource('playlists',PlaylistController::class);
+Route::get('/playlists/{id}/songs', [PlaylistController::class, 'songs'])->name('playlists.songs');
+Route::delete('/playlists/{playlist}/songs/{song}', [PlaylistController::class, 'removeSong'])->name('playlist.removeSong');
 
 require __DIR__.'/auth.php';

@@ -18,8 +18,15 @@
                     <x-nav-link :href="route('artists.index')" :active="request()->routeIs('artists.index')">
                         {{ __('Artists') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('crud.index')" :active="request()->routeIs('crud.index')">
-                        {{ __('Crud') }}
+                    @auth
+                        @if(auth()->user()->isAdmin())
+                            <x-nav-link :href="route('crud.index')" :active="request()->routeIs('crud.index')">
+                                {{ __('Crud') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
+                    <x-nav-link :href="route('playlists.index')" :active="request()->routeIs('playlists.index')">
+                        {{ __('Playlists') }}
                     </x-nav-link>
                 </div>
             </div>
