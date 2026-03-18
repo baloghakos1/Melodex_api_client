@@ -69,14 +69,30 @@
                                         let html = '';
                                         data.forEach(item => {
                                             const cover = item.searchable.cover || 'https://via.placeholder.com/40';
+                                            
+                                            
+                                            //let targetUrl = '#';
+                                            let targetUrl = `/artist/${item.searchable.artist_id}/${item.searchable.id}`;
+
+
+                                            if (item.type === 'albums') {
+                                                targetUrl = `/artist/${item.searchable.artist_id}/${item.searchable.id}`;
+                                            } else if (item.type === 'artists') {
+                                                targetUrl = `/artist/${item.searchable.id}`;
+                                            }
+                                            console.log("Full Item Object:", item); // Check if searchable exists
+                                            console.log("Artist ID:", item.searchable?.id); // Check if this is a number/string
+    
+                                            console.log("Generated Link:", targetUrl);
+
                                             html += `
-                                                <div class="flex items-center p-2 hover:bg-gray-100 cursor-pointer rounded-md transition mb-1">
-                                                    <img src="${cover}" class="w-10 h-10 rounded object-cover mr-3">
+                                                <a href="${targetUrl}" class="flex items-center p-2 hover:bg-gray-100 cursor-pointer rounded-md transition mb-1 no-underline text-current">
+                                                    <img src="${cover}" class="w-10 h-10 rounded object-cover mr-3" alt="${item.title} cover">
                                                     <div class="flex flex-col">
                                                         <span class="text-sm font-semibold text-gray-800">${item.title}</span>
                                                         <span class="text-xs text-gray-500 uppercase">${item.type}</span>
                                                     </div>
-                                                </div>`;
+                                                </a>`;
                                         });
                                         popupContent.innerHTML = html;
                                         searchPopup.classList.remove('hidden');
@@ -88,7 +104,6 @@
                         }, 300); 
                     });
 
-                    // Close popup if user clicks outside
                     document.addEventListener('click', (e) => {
                         if (!document.getElementById('searchContainer').contains(e.target)) {
                             searchPopup.classList.add('hidden');
