@@ -47,7 +47,6 @@
     </div>
 
     <script>
-        // Works on both first load (DOMContentLoaded) and Turbo navigations (turbo:load)
         function initSongsPage() {
             window._musicPlayerInitialized = true;
 
@@ -59,7 +58,6 @@
 
             window.musicPlayer.init(songsData);
 
-            // Wire up the small play buttons
             document.querySelectorAll('.song-play-btn').forEach((btn, index) => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();

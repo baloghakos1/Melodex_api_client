@@ -8,6 +8,7 @@ use App\Http\Controllers\AlbumCrudController;
 use App\Http\Controllers\SongCrudController;
 use App\Http\Controllers\ArtistCrudController;
 use App\Http\Controllers\PlaylistController;
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -52,5 +53,7 @@ Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('
 Route::resource('playlists',PlaylistController::class);
 Route::get('/playlists/{id}/songs', [PlaylistController::class, 'songs'])->name('playlists.songs');
 Route::delete('/playlists/{playlist}/songs/{song}', [PlaylistController::class, 'removeSong'])->name('playlist.removeSong');
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search/preview', [SearchController::class, 'preview'])->name('search.preview');
 
 require __DIR__.'/auth.php';
