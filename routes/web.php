@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ArtistController;
-use App\Http\Controllers\MemberController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\AlbumCrudController;
 use App\Http\Controllers\SongCrudController;
@@ -40,7 +39,6 @@ Route::get('/crud.artists', [ArtistCrudController::class, 'index'])->name('crud.
 Route::resource('albumcrud',AlbumCrudController::class);
 Route::resource('songcrud',SongCrudController::class);
 Route::resource('artistcrud',ArtistCrudController::class);
-Route::resource('membercrud',MemberCrudController::class);
 
 /*
 Route::get('export/artists/csv', [ArtistCrudController::class, 'exportCsv'])->name('export.artists.csv');
@@ -55,5 +53,6 @@ Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('
 Route::resource('playlists',PlaylistController::class);
 Route::get('/playlists/{id}/songs', [PlaylistController::class, 'songs'])->name('playlists.songs');
 Route::delete('/playlists/{playlist}/songs/{song}', [PlaylistController::class, 'removeSong'])->name('playlist.removeSong');
+Route::post('/songs/{song}/add-to-playlists', [PlaylistController::class, 'storeAddToPlaylists'])->name('playlist.storeAddToPlaylists');
 
 require __DIR__.'/auth.php';

@@ -23,7 +23,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('playlists.store') }}" onsubmit="disableButton(this)">
+                <form method="POST" action="{{ route('playlists.store') }}" id="createPlaylistForm">
                     @csrf
 
                     {{-- Playlist Name --}}
@@ -63,11 +63,12 @@
     </div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const form = document.querySelector('form');
-    const button = form.querySelector('button[type="submit"]');
+    const form = document.getElementById('createPlaylistForm');
+    const button = document.getElementById('submitBtn');
 
     form.addEventListener('submit', function () {
         button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
         button.innerText = 'Creating...';
     });
 });

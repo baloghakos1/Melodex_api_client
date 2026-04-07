@@ -217,7 +217,7 @@ class PlaylistController extends Controller
         }
 
         try {
-            // Fetch playlist info
+            // Fetch current playlist
             $responsePlaylist = Http::withToken($token)
                 ->get("$apiBase/user/{$user->id}/playlist/{$playlistId}");
 
@@ -225,45 +225,60 @@ class PlaylistController extends Controller
             $responseSongs = Http::withToken($token)
                 ->get("$apiBase/user/{$user->id}/playlist/{$playlistId}/songs");
 
-            if ($responsePlaylist->failed() || $responseSongs->failed()) {
+            // Fetch all user playlists
+            $responseUserPlaylists = Http::withToken($token)
+                ->get("$apiBase/user/{$user->id}/playlists");
+
+            if ($responsePlaylist->failed() || $responseSongs->failed() || $responseUserPlaylists->failed()) {
                 $playlist = null;
                 $songs = collect();
-                $error = "Failed to fetch playlist or songs";
+                $userPlaylists = collect();
+                $error = "Failed to fetch playlist, songs, or user playlists.";
             } else {
+                // Current playlist
                 $playlistData = $responsePlaylist->json()['playlist'] ?? null;
-                $songsData = $responseSongs->json()['songs'] ?? [];
-
                 $playlist = (object)[
                     'id' => $playlistId,
                     'name' => $playlistData['name'] ?? 'Unknown Playlist',
                 ];
 
+                // Songs in current playlist
+                $songsData = $responseSongs->json()['songs'] ?? [];
                 $songs = collect($songsData)->map(function ($song) {
-
                     return (object)[
                         'id' => $song['id'] ?? null,
                         'name' => $song['name'] ?? 'Unknown Song',
-                
                         'artist_name' => $song['album']['artist']['name'] ?? 'Unknown Artist',
                         'artist_id' => $song['album']['artist']['id'] ?? null,
-                
                         'album_name' => $song['album']['name'] ?? 'Unknown Album',
                         'album_cover' => $song['album']['cover'] ?? asset('image/default_album.png'),
                         'album_id' => $song['album']['id'] ?? null,
                     ];
                 });
 
+                // All other playlists
+                $allPlaylistsData = $responseUserPlaylists->json()['playlists'] ?? [];
+                $userPlaylists = collect($allPlaylistsData)
+                    ->filter(fn($p) => $p['id'] != $playlistId) // exclude current playlist
+                    ->map(fn($p) => (object)[
+                        'id' => $p['id'],
+                        'name' => $p['name'] ?? 'Unnamed Playlist'
+                    ]);
+
                 $error = null;
             }
-
         } catch (\Exception $e) {
             $playlist = null;
             $songs = collect();
-            $error = "Error fetching playlist or songs: " . $e->getMessage();
+            $userPlaylists = collect();
+            $error = "Error fetching playlist, songs, or user playlists: " . $e->getMessage();
         }
 
-        return view('playlists.songs', compact('playlist', 'songs', 'error'));
+        // Send all variables to Blade
+        return view('playlists.songs', compact('playlist', 'songs', 'userPlaylists', 'error'));
     }
+
+
 
     public function removeSong($playlistId, $songId)
     {
@@ -294,5 +309,22 @@ class PlaylistController extends Controller
             return redirect()->back()
                 ->with('error', 'API communication error: ' . $e->getMessage());
         }
+    }
+
+    public function storeAddToPlaylists(Request $request, $songId)
+    {
+        $playlists = $request->playlists ?? [];
+        $user = auth()->user();
+        $token = session('api_token');
+        $apiBase = rtrim(config('app.api_url'), '/');
+
+        foreach ($playlists as $playlistId) {
+            Http::withToken($token)
+                ->post("$apiBase/user/{$user->id}/playlist/{$playlistId}/song", [
+                    'song_id' => $songId
+                ]);
+        }
+
+        return redirect()->back()->with('success', 'Song added to selected playlists!');
     }
 }
