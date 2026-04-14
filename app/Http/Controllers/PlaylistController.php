@@ -217,77 +217,94 @@ class PlaylistController extends Controller
         }
 
         try {
-            // Fetch current playlist
+            // 🔹 Fetch main data in parallel-style (cleaner structure)
             $responsePlaylist = Http::withToken($token)
                 ->get("$apiBase/user/{$user->id}/playlist/{$playlistId}");
 
-            // Fetch songs in the playlist
             $responseSongs = Http::withToken($token)
                 ->get("$apiBase/user/{$user->id}/playlist/{$playlistId}/songs");
 
-            // Fetch all user playlists
             $responseUserPlaylists = Http::withToken($token)
                 ->get("$apiBase/user/{$user->id}/playlists");
 
-            if ($responsePlaylist->failed() || $responseSongs->failed() || $responseUserPlaylists->failed()) {
-                $playlist = null;
-                $songs = collect();
-                $userPlaylists = collect();
-                $error = "Failed to fetch playlist, songs, or user playlists.";
-            } else {
-                // Current playlist
-                $playlistData = $responsePlaylist->json()['playlist'] ?? null;
-                $playlist = (object)[
-                    'id' => $playlistId,
-                    'name' => $playlistData['name'] ?? 'Unknown Playlist',
-                ];
+            if (
+                $responsePlaylist->failed() ||
+                $responseSongs->failed() ||
+                $responseUserPlaylists->failed()
+            ) {
+                return view('playlists.songs', [
+                    'playlist' => null,
+                    'songs' => collect(),
+                    'userPlaylists' => collect(),
+                    'error' => 'Failed to fetch playlist data.'
+                ]);
+            }
 
-                // Songs in current playlist
-                $songsData = $responseSongs->json()['songs'] ?? [];
-                $songs = collect($songsData)->map(function ($song) use ($user, $token, $apiBase) {
+            // 🔹 Playlist
+            $playlistData = $responsePlaylist->json()['playlist'] ?? null;
 
-                    // Fetch playlists for THIS song
+            $playlist = (object)[
+                'id' => $playlistId,
+                'name' => $playlistData['name'] ?? 'Unknown Playlist',
+            ];
+
+            // 🔹 User playlists
+            $userPlaylists = collect($responseUserPlaylists->json()['playlists'] ?? [])
+                ->map(fn($p) => (object)[
+                    'id' => $p['id'],
+                    'name' => $p['name'] ?? 'Unnamed Playlist'
+                ]);
+
+            // 🔹 Songs
+            $songsData = $responseSongs->json()['songs'] ?? [];
+
+            $songs = collect($songsData)->map(function ($song) use ($user, $token, $apiBase) {
+
+                // ⚠️ Still needed because your API doesn't include playlist_ids
+                $playlistIds = [];
+
+                try {
                     $responseSongPlaylists = Http::withToken($token)
                         ->get("$apiBase/user/{$user->id}/song/{$song['id']}/playlists");
-                
-                    $playlistIds = [];
-                
+
                     if ($responseSongPlaylists->successful()) {
                         $playlistIds = collect($responseSongPlaylists->json()['playlists'] ?? [])
                             ->pluck('id')
+                            ->map(fn($id) => (int)$id) // 🔥 ensure integers
                             ->toArray();
                     }
-                
-                    return (object)[
-                        'id' => $song['id'] ?? null,
-                        'name' => $song['name'] ?? 'Unknown Song',
-                        'artist_name' => $song['album']['artist']['name'] ?? 'Unknown Artist',
-                        'artist_id' => $song['album']['artist']['id'] ?? null,
-                        'album_name' => $song['album']['name'] ?? 'Unknown Album',
-                        'album_cover' => $song['album']['cover'] ?? asset('image/default_album.png'),
-                        'album_id' => $song['album']['id'] ?? null,
-                        'playlist_ids' => $playlistIds,
-                    ];
-                });
+                } catch (\Exception $e) {
+                    // fail silently per song (important)
+                    $playlistIds = [];
+                }
 
-                $allPlaylistsData = $responseUserPlaylists->json()['playlists'] ?? [];
-                $userPlaylists = collect($allPlaylistsData)
-                    ->map(fn($p) => (object)[
-                        'id' => $p['id'],
-                        'name' => $p['name'] ?? 'Unnamed Playlist'
-                    ]);
+                return (object)[
+                    'id' => $song['id'] ?? null,
+                    'name' => $song['name'] ?? 'Unknown Song',
+                    'artist_name' => $song['album']['artist']['name'] ?? 'Unknown Artist',
+                    'artist_id' => $song['album']['artist']['id'] ?? null,
+                    'album_name' => $song['album']['name'] ?? 'Unknown Album',
+                    'album_cover' => $song['album']['cover'] ?? asset('image/default_album.png'),
+                    'album_id' => $song['album']['id'] ?? null,
+                    'playlist_ids' => $playlistIds,
+                ];
+            });
 
-                $error = null;
-            }
+            return view('playlists.songs', [
+                'playlist' => $playlist,
+                'songs' => $songs,
+                'userPlaylists' => $userPlaylists,
+                'error' => null
+            ]);
+
         } catch (\Exception $e) {
-            $playlist = null;
-            $songs = collect();
-            $userPlaylists = collect();
-            $error = "Error fetching playlist, songs, or user playlists: " . $e->getMessage();
+            return view('playlists.songs', [
+                'playlist' => null,
+                'songs' => collect(),
+                'userPlaylists' => collect(),
+                'error' => 'Error: ' . $e->getMessage()
+            ]);
         }
-
-        // Send all variables to Blade
-        return view('playlists.songs', compact('playlist', 'songs', 'userPlaylists', 'error'));
     }
 
 
