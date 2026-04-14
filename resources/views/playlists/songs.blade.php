@@ -74,19 +74,25 @@
                                         <div x-show="showModal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                             <div class="bg-white rounded-lg p-6 w-96 relative">
                                                 <h3 class="text-lg font-bold mb-4">Select playlists</h3>
-                                                <form method="POST" action="{{ route('playlist.storeAddToPlaylists', $song->id) }}">
+                                                <form method="POST" action="{{ route('playlist.syncSongPlaylists', $song->id) }}">
                                                     @csrf
-                                                    @foreach($userPlaylists as $playlist)
+                                                    @foreach($userPlaylists as $playlistItem)
                                                         <div class="mb-2">
                                                             <label class="flex items-center space-x-2">
-                                                                <input type="checkbox" name="playlists[]" value="{{ $playlist->id }}" class="h-4 w-4">
-                                                                <span>{{ $playlist->name }}</span>
+                                                            <input 
+                                                                    type="checkbox" 
+                                                                    name="playlists[]" 
+                                                                    value="{{ $playlistItem->id }}"
+                                                                    class="h-4 w-4"
+                                                                    {{ in_array($playlistItem->id, $song->playlist_ids) ? 'checked' : '' }}
+                                                                >
+                                                                <span>{{ $playlistItem->name }}</span>
                                                             </label>
                                                         </div>
                                                     @endforeach
                                                     <div class="flex justify-end space-x-2 mt-4">
                                                         <button type="button" @click="showModal = false" class="px-4 py-2 border rounded">Cancel</button>
-                                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Add</button>
+                                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Ok</button>
                                                     </div>
                                                 </form>
                                                 <button @click="showModal = false" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">&times;</button>

@@ -244,7 +244,20 @@ class PlaylistController extends Controller
 
                 // Songs in current playlist
                 $songsData = $responseSongs->json()['songs'] ?? [];
-                $songs = collect($songsData)->map(function ($song) {
+                $songs = collect($songsData)->map(function ($song) use ($user, $token, $apiBase) {
+
+                    // Fetch playlists for THIS song
+                    $responseSongPlaylists = Http::withToken($token)
+                        ->get("$apiBase/user/{$user->id}/song/{$song['id']}/playlists");
+                
+                    $playlistIds = [];
+                
+                    if ($responseSongPlaylists->successful()) {
+                        $playlistIds = collect($responseSongPlaylists->json()['playlists'] ?? [])
+                            ->pluck('id')
+                            ->toArray();
+                    }
+                
                     return (object)[
                         'id' => $song['id'] ?? null,
                         'name' => $song['name'] ?? 'Unknown Song',
@@ -253,13 +266,12 @@ class PlaylistController extends Controller
                         'album_name' => $song['album']['name'] ?? 'Unknown Album',
                         'album_cover' => $song['album']['cover'] ?? asset('image/default_album.png'),
                         'album_id' => $song['album']['id'] ?? null,
+                        'playlist_ids' => $playlistIds,
                     ];
                 });
 
-                // All other playlists
                 $allPlaylistsData = $responseUserPlaylists->json()['playlists'] ?? [];
                 $userPlaylists = collect($allPlaylistsData)
-                    ->filter(fn($p) => $p['id'] != $playlistId) // exclude current playlist
                     ->map(fn($p) => (object)[
                         'id' => $p['id'],
                         'name' => $p['name'] ?? 'Unnamed Playlist'
@@ -311,20 +323,18 @@ class PlaylistController extends Controller
         }
     }
 
-    public function storeAddToPlaylists(Request $request, $songId)
+    public function syncSongPlaylists(Request $request, $songId)
     {
-        $playlists = $request->playlists ?? [];
         $user = auth()->user();
         $token = session('api_token');
         $apiBase = rtrim(config('app.api_url'), '/');
 
-        foreach ($playlists as $playlistId) {
-            Http::withToken($token)
-                ->post("$apiBase/user/{$user->id}/playlist/{$playlistId}/song", [
-                    'song_id' => $songId
-                ]);
-        }
-
-        return redirect()->back()->with('success', 'Song added to selected playlists!');
+        Http::withToken($token)->post(
+            "$apiBase/user/{$user->id}/song/{$songId}/playlists",
+            [
+                'playlists' => $request->playlists ?? []
+            ]
+        );
+        return back()->with('success', 'Playlists updated!');
     }
 }

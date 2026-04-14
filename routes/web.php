@@ -53,6 +53,6 @@ Route::get('export/songs/pdf', [SongCrudController::class, 'exportPdf'])->name('
 Route::resource('playlists',PlaylistController::class);
 Route::get('/playlists/{id}/songs', [PlaylistController::class, 'songs'])->name('playlists.songs');
 Route::delete('/playlists/{playlist}/songs/{song}', [PlaylistController::class, 'removeSong'])->name('playlist.removeSong');
-Route::post('/songs/{song}/add-to-playlists', [PlaylistController::class, 'storeAddToPlaylists'])->name('playlist.storeAddToPlaylists');
+Route::post('/songs/{song}/sync-playlists', [PlaylistController::class, 'syncSongPlaylists'])->name('playlist.syncSongPlaylists');
 
 require __DIR__.'/auth.php';
