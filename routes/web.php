@@ -55,5 +55,6 @@ Route::get('/playlists/{id}/songs', [PlaylistController::class, 'songs'])->name(
 Route::delete('/playlists/{playlist}/songs/{song}', [PlaylistController::class, 'removeSong'])->name('playlist.removeSong');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/search/preview', [SearchController::class, 'preview'])->name('search.preview');
+Route::post('/songs/{song}/sync-playlists', [PlaylistController::class, 'syncSongPlaylists'])->name('playlist.syncSongPlaylists');
 
 require __DIR__.'/auth.php';

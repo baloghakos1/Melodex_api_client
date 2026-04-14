@@ -62,15 +62,14 @@
         </div>
     </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('createPlaylistForm');
-        const button = document.getElementById('createBtn');
-    
-        form.addEventListener('submit', function () {
-            button.disabled = true;
-            button.classList.add('opacity-50', 'cursor-not-allowed');
-            button.innerText = 'Creating...';
-        });
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('createPlaylistForm');
+    const button = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function () {
+        button.disabled = true;
+        button.classList.add('opacity-50', 'cursor-not-allowed');
+        button.innerText = 'Creating...';
     });
 </script>
 </x-app-layout>
