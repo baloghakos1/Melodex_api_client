@@ -34,9 +34,7 @@ class ArtistController extends Controller
             $apiBase = rtrim(config('app.api_url'), '/');
 
             $responseAlbums = Http::get("$apiBase/artist/$artist_id/albums");
-
             $responseArtist = Http::get("$apiBase/artist/$artist_id");
-
 
             if ($responseAlbums->failed() || $responseArtist->failed()) {
                 $artist = null;
@@ -45,24 +43,18 @@ class ArtistController extends Controller
             } else {
 
                 $albumsData = $responseAlbums->json();
-
                 $artistData = $responseArtist->json()['artist'] ?? null;
 
-                $artist = (object)[
+                $artist = $artistData ? (object)[
                     'id'    => $artist_id,
                     'name'  => $artistData['name'] ?? $albumsData['artist'] ?? 'Unknown Artist',
                     'image' => $artistData['image'] ?? asset('image/default_artist.png'),
                     'description' => $artistData['description'] ?? '',
                     'nationality' => $artistData['nationality'] ?? null,
-                ];
+                ] : null;
 
                 $albums = collect($albumsData['albums'] ?? [])
-                    ->map(function($album) use ($apiBase) {
-                        $songResponse = Http::get("$apiBase/album/{$album['id']}/songs");
-                        $songsCount = count($songResponse->json()['songs'] ?? []);
-                        
-                        return (object) array_merge((array) $album, ['songs_count' => $songsCount]);
-                    });
+                    ->map(fn($album) => (object) $album);
 
                 $error = null;
             }
@@ -72,7 +64,6 @@ class ArtistController extends Controller
             $albums = collect();
             $error = "Error fetching artist: " . $e->getMessage();
         }
-
 
         return view('artists.show', compact('artist', 'albums', 'error'));
     }

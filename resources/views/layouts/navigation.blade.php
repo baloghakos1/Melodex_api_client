@@ -12,17 +12,17 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('artists.index')" :active="request()->routeIs('artists.index')">
+                    <x-nav-link :href="route('artists.index')" :active="request()->routeIs('artists.index')" data-turbo="false">
                         {{ __('Artists') }}
                     </x-nav-link>
                     @auth
                         @if(auth()->user()->isAdmin())
-                            <x-nav-link :href="route('crud.index')" :active="request()->routeIs('crud.index')">
+                            <x-nav-link :href="route('crud.index')" :active="request()->routeIs('crud.index')" data-turbo="false">
                                 {{ __('Crud') }}
                             </x-nav-link>
                         @endif
                     @endauth
-                    <x-nav-link :href="route('playlists.index')" :active="request()->routeIs('playlists.index')">
+                    <x-nav-link :href="route('playlists.index')" :active="request()->routeIs('playlists.index')" data-turbo="false">
                         {{ __('Playlists') }}
                     </x-nav-link>
                 </div>

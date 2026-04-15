@@ -12,12 +12,10 @@ class SongController extends Controller
         try {
             $apiBase = rtrim(config('app.api_url'), '/');
 
-            // 🔹 Main API calls
             $responseAlbum = Http::get("$apiBase/artist/$artist_id/album/$album_id");
             $responseArtist = Http::get("$apiBase/artist/$artist_id");
             $responseSongs = Http::get("$apiBase/artist/$artist_id/album/$album_id/songs");
 
-            // 🔥 NEW: user playlists (needed for modal)
             $user = auth()->user();
 
             $responseUserPlaylists = Http::withToken(session('api_token'))
@@ -38,7 +36,6 @@ class SongController extends Controller
                 ]);
             }
 
-            // 🔹 Artist
             $artistData = $responseArtist->json()['artist'] ?? null;
 
             $artist = (object)[
@@ -49,7 +46,6 @@ class SongController extends Controller
                 'nationality' => $artistData['nationality'] ?? null,
             ];
 
-            // 🔹 Album
             $albumData = $responseAlbum->json()['album'] ?? null;
 
             $album = (object)[
@@ -61,14 +57,12 @@ class SongController extends Controller
                 'artist_id' => $artist_id,
             ];
 
-            // 🔹 User playlists (for modal checkboxes)
             $userPlaylists = collect($responseUserPlaylists->json()['playlists'] ?? [])
                 ->map(fn($p) => (object)[
                     'id' => $p['id'],
                     'name' => $p['name'] ?? 'Unnamed Playlist'
                 ]);
 
-            // 🔹 Songs + playlist IDs per song (IMPORTANT)
             $songsData = $responseSongs->json();
 
             $songs = collect($songsData['songs'] ?? [])
@@ -95,7 +89,7 @@ class SongController extends Controller
                     return (object)[
                         'id' => $song['id'] ?? null,
                         'name' => $song['name'] ?? 'Unknown Song',
-                        'playlist_ids' => $playlistIds, // 🔥 REQUIRED for checked boxes
+                        'playlist_ids' => $playlistIds,
                     ];
                 });
 

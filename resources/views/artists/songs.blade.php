@@ -9,7 +9,7 @@
         </h2>
         @if($artist)
         <a href="{{ route('artists.show', ['artist_id' => $artist->id]) }}"
-           class="text-blue-600 hover:text-blue-800">
+           class="text-blue-600 hover:text-blue-800" data-turbo="false">
             &larr; Back to Artist
         </a>
         @endif

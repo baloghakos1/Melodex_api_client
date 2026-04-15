@@ -42,7 +42,7 @@
 
                     <!-- Playlist Card -->
                     <div class="playlist-card-btn flex justify-between items-center">
-                        <a href="{{ route('playlists.songs', $playlist->id) }}" class="flex items-center gap-4 flex-1">
+                        <a href="{{ route('playlists.songs', $playlist->id) }}" class="flex items-center gap-4 flex-1" data-turbo="false">
                             <div class="flex items-center gap-4">
                                 <div class="playlist-icon">
                                     <i class="fa-solid fa-music"></i>
@@ -62,7 +62,7 @@
 
                             <!-- Dropdown Menu -->
                             <div x-show="open" @click.away="open = false" x-transition class="playlist-dropdown" style="display: none;">
-                                <a href="{{ route('playlists.edit', $playlist->id) }}">Edit</a>
+                                <a href="{{ route('playlists.edit', $playlist->id) }}" data-turbo="false">Edit</a>
                                 <form action="{{ route('playlists.destroy', $playlist->id) }}" method="POST" onsubmit="return confirm('Delete this playlist?');">
                                     @csrf
                                     @method('DELETE')

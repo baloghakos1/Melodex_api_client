@@ -7,8 +7,8 @@
             {{ $artist->name }}
         </h2>
         <div class="mt-4">
-            <a href="{{ route('artists.index') }}"
-                class="text-blue-600 hover:text-blue-800">
+            <a href="{{ route('artists.index') }} "
+                class="text-blue-600 hover:text-blue-800" data-turbo="false">
                 &larr; Back to Artists
             </a>
         </div>
@@ -31,7 +31,7 @@
                          class="artist-photo">
 
                     <div>
-                        <a href="{{ route('artists.description', ['artist_id' => ($artist->id)]) }}">
+                        <a href="{{ route('artists.description', ['artist_id' => ($artist->id)]) }}" data-turbo="false">
                             <button class="read-more-btn">
                                 <i class="fa-solid fa-square-plus mr-1"></i> Read More
                             </button>
@@ -49,7 +49,7 @@
                                 'artist_id' => $artist->id,
                                 'album_id' => $album->id
                             ]) }}"
-                               class="block bg-gray-50 hover:bg-gray-100 p-4 rounded-lg shadow transition">
+                               class="block bg-gray-50 hover:bg-gray-100 p-4 rounded-lg shadow transition" data-turbo="false">
                                <div class="album-info">
                                     <button class="album-cover-btn">
                                     <img src="{{ $album->cover }}"
