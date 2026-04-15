@@ -1,12 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
         <link rel="stylesheet" href="{{ asset('css/artists.css') }}">
-<<<<<<< HEAD
-=======
         <link rel="stylesheet" href="{{ asset('css/songs.css') }}">
         <link rel="stylesheet" href="{{ asset('css/playlist_songs.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
->>>>>>> develop
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ $album->name ?? 'Album' }}
         </h2>
