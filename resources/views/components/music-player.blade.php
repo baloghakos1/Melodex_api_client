@@ -184,6 +184,8 @@
         },
 
         setupEventListeners: function() {
+            if (this._listenersBound) return;
+            this._listenersBound = true;
             const audioPlayer = document.getElementById('audioPlayer');
             const playBtn = document.getElementById('playBtn');
             const prevBtn = document.getElementById('prevBtn');

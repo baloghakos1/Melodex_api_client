@@ -34,95 +34,183 @@
                         No songs in this playlist.
                     </div>
                 @else
-                @foreach($songs as $song)
-                    <div x-data="{ open: false }" class="song-row-wrapper">
+                <div class="playlist-container">
+                    <h3 class="playlist-title">{{ count($songs) }} Tracks</h3>
 
-                        <div class="song-row">
+                    @foreach($songs as $index => $song)
+                        <div class="song-item flex items-center justify-between relative">
 
-                            <!-- Song Info -->
-                            <div class="song-left">
-                                <img class="song-cover"
-                                    src="{{ $song->album_cover ?? asset('image/default_song.png') }}"
-                                    alt="{{ $song->album_name }}">
+                            <!-- LEFT -->
+                            <div class="flex items-center space-x-4">
+                                <span class="song-index">{{ $index + 1 }}</span>
 
-                                <div class="song-details">
-                                    <h1 class="song-name">{{ $song->name }}</h1>
-                                    <h3 class="song-artist">{{ $song->artist_name ?? 'Unknown Artist' }}</h3>
+                                <div class="song-cover-wrapper">
+                                    <img class="song-cover-small"
+                                        src="{{ $song->album_cover ?? asset('image/default_song.png') }}"
+                                        alt="{{ $song->album_name }}">
+
+                                    <button class="song-play-btn">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </div>
+
+                                <div class="song-info-small">
+                                    <h4 class="song-name-small">{{ $song->name }}</h4>
+                                    <p class="song-artist-small">
+                                        {{ $song->artist_name ?? 'Unknown Artist' }}
+                                    </p>
                                 </div>
                             </div>
 
-                            <!-- 3 Dots Menu -->
-                            <div class="song-menu">
+                            <!-- RIGHT -->
+                            <div class="flex items-center space-x-4">
 
-                                <!-- Button -->
-                                <button @click="open = !open" class="song-dots-btn">
-                                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                                </button>
+                                <!-- DROPDOWN -->
+                                <div x-data="{ open: false }"
+                                    :class="{ 'z-[9999]': open }"
+                                    class="relative">
 
-                                <!-- Dropdown -->
-                                <div
-                                    x-show="open"
-                                    @click.away="open = false"
-                                    x-transition
-                                    class="song-dropdown"
-                                    style="display:none"
-                                >
-                                    <div x-data="{ showModal: false }">
-                                        <a @click.prevent="showModal = true">Add to other playlist</a>
+                                    <button @click="open = !open" class="song-dots-btn">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
 
-                                        <!-- Modal -->
-                                        <div x-show="showModal" class="modal-backdrop fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                                            <div class="bg-white rounded-lg p-6 w-96 relative">
-                                                <h3 class="text-lg font-bold mb-4">Select playlists</h3>
-                                                <form method="POST" action="{{ route('playlist.syncSongPlaylists', $song->id) }}">
-                                                    @csrf
-                                                    @foreach($userPlaylists as $playlistItem)
-                                                        <div class="mb-2">
-                                                            <label class="flex items-center space-x-2">
-                                                            <input 
-                                                                    type="checkbox" 
-                                                                    name="playlists[]" 
-                                                                    value="{{ $playlistItem->id }}"
-                                                                    class="h-4 w-4"
-                                                                    {{ in_array($playlistItem->id, $song->playlist_ids) ? 'checked' : '' }}
-                                                                >
-                                                                <span>{{ $playlistItem->name }}</span>
-                                                            </label>
-                                                        </div>
-                                                    @endforeach
-                                                    <div class="flex justify-end space-x-2 mt-4">
-                                                        <button type="button" @click="showModal = false" class="px-4 py-2 border rounded">Cancel</button>
-                                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Ok</button>
-                                                    </div>
-                                                </form>
-                                                <button @click="showModal = false" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">&times;</button>
-                                            </div>
-                                        </div>
+                                    <div x-show="open"
+                                        @click.away="open = false"
+                                        x-transition
+                                        class="absolute right-0 mt-2 w-48 bg-white text-black shadow-lg rounded z-[10000]"
+                                        style="display:none">
+
+                                        <!-- Add to playlist -->
+                                        <a @click.prevent="$dispatch('open-modal', {{ $song->id }}); open = false"
+                                            class="block px-4 py-2 cursor-pointer hover:bg-gray-100">
+
+                                            Add to other playlists
+                                        </a>
+
+                                        <!-- Remove -->
+                                        <form action="{{ route('playlist.removeSong', [$playlist->id, $song->id]) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Remove this song from the playlist?');">
+
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                    class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">
+                                                Remove from Playlist
+                                            </button>
+                                        </form>
+
                                     </div>
-                                    <form action="{{ route('playlist.removeSong', [$playlist->id, $song->id]) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Remove this song from the playlist?');">
-
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <button type="submit" class="song-remove-btn">
-                                            Remove from Playlist
-                                        </button>
-
-                                    </form>
-
                                 </div>
 
                             </div>
 
                         </div>
-
-                    </div>
                     @endforeach
+                </div>
+
                 @endif
 
             </div>
         </div>
     </div>
+
+    <div
+        x-data="{ open: false, songId: null }"
+        x-on:open-modal.window="open = true; songId = $event.detail"
+        x-show="open"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]"
+        style="display:none;"
+    >
+        <div class="bg-white text-black rounded-lg p-6 w-96 relative">
+
+            <h3 class="text-lg font-bold mb-4 text-gray-900">
+                Select playlists
+            </h3>
+
+            <!-- ✅ FIXED: dynamic action -->
+            <form method="POST" action="{{ route('playlist.syncSongPlaylists', $song->id) }}">
+                @csrf
+
+                @foreach($userPlaylists as $playlistItem)
+                    <div class="mb-2">
+                        <label class="flex items-center space-x-2 text-gray-800">
+                            <input type="checkbox"
+                                   name="playlists[]"
+                                   value="{{ $playlistItem->id }}"
+                                   class="h-4 w-4">
+
+                            <span>{{ $playlistItem->name }}</span>
+                        </label>
+                    </div>
+                @endforeach
+
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button type="button"
+                            @click="open = false"
+                            class="px-4 py-2 border rounded text-gray-800">
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded">
+                        Ok
+                    </button>
+                </div>
+            </form>
+
+            <button @click="open = false"
+                    class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
+                &times;
+            </button>
+
+        </div>
+    </div>
+
+    <script>
+        function initSongsPage() {
+        window._musicPlayerInitialized = true;
+
+        const songsData = @json($songs).map(song => ({
+            ...song,
+
+            artist_name: song.artist_name ?? 'Unknown Artist',
+
+            album: {
+                cover: song.album_cover ?? ''
+            }
+        }));
+
+        window.musicPlayer.init(songsData);
+
+        document.querySelectorAll('.song-play-btn').forEach((btn, index) => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                const player = window.musicPlayer;
+
+                const isSameSong = player.currentSongIndex === index;
+
+                if (isSameSong) {
+                    if (player.isPlaying) {
+                        player.pause();
+                    } else {
+                        player.play();
+                    }
+                } else {
+                    // 🔥 ALWAYS reinitialize song properly
+                    player.loadSong(index, true);
+                }
+            });
+        });
+
+
+
+    }
+
+    document.addEventListener('DOMContentLoaded', initSongsPage);
+    document.addEventListener('turbo:load', initSongsPage);
+
+    </script>
 </x-app-layout>

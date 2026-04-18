@@ -217,7 +217,7 @@ class PlaylistController extends Controller
         }
 
         try {
-            // 🔹 Fetch main data in parallel-style (cleaner structure)
+
             $responsePlaylist = Http::withToken($token)
                 ->get("$apiBase/user/{$user->id}/playlist/{$playlistId}");
 
@@ -260,7 +260,6 @@ class PlaylistController extends Controller
 
             $songs = collect($songsData)->map(function ($song) use ($user, $token, $apiBase) {
 
-                // ⚠️ Still needed because your API doesn't include playlist_ids
                 $playlistIds = [];
 
                 try {
@@ -270,22 +269,35 @@ class PlaylistController extends Controller
                     if ($responseSongPlaylists->successful()) {
                         $playlistIds = collect($responseSongPlaylists->json()['playlists'] ?? [])
                             ->pluck('id')
-                            ->map(fn($id) => (int)$id) // 🔥 ensure integers
+                            ->map(fn($id) => (int)$id)
                             ->toArray();
                     }
                 } catch (\Exception $e) {
-                    // fail silently per song (important)
                     $playlistIds = [];
                 }
 
                 return (object)[
                     'id' => $song['id'] ?? null,
                     'name' => $song['name'] ?? 'Unknown Song',
-                    'artist_name' => $song['album']['artist']['name'] ?? 'Unknown Artist',
+
+                    // 🔥 AUDIO (CRITICAL FOR PLAYER)
+                    'stream_url' => $song['stream_url']
+                        ?? "$apiBase/song/{$song['id']}/stream",
+
+                    // 🔥 UI + PLAYER SUPPORT
+                    'artist_name' => $song['album']['artist']['name']
+                        ?? 'Unknown Artist',
+
                     'artist_id' => $song['album']['artist']['id'] ?? null,
+
                     'album_name' => $song['album']['name'] ?? 'Unknown Album',
-                    'album_cover' => $song['album']['cover'] ?? asset('image/default_album.png'),
+
+                    'album_cover' => $song['album']['cover']
+                        ?? asset('image/default_album.png'),
+
                     'album_id' => $song['album']['id'] ?? null,
+
+                    // 🔥 PLAYLIST STATE
                     'playlist_ids' => $playlistIds,
                 ];
             });
@@ -306,6 +318,7 @@ class PlaylistController extends Controller
             ]);
         }
     }
+
 
 
 

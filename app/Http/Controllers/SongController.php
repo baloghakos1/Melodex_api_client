@@ -9,16 +9,18 @@ class SongController extends Controller
     public function index(string $artist_id, string $album_id)
     {
         $error = null;
+
         try {
             $apiBase = rtrim(config('app.api_url'), '/');
+            $user = auth()->user();
+            $token = session('api_token');
 
+            // API calls
             $responseAlbum = Http::get("$apiBase/artist/$artist_id/album/$album_id");
             $responseArtist = Http::get("$apiBase/artist/$artist_id");
             $responseSongs = Http::get("$apiBase/artist/$artist_id/album/$album_id/songs");
 
-            $user = auth()->user();
-
-            $responseUserPlaylists = Http::withToken(session('api_token'))
+            $responseUserPlaylists = Http::withToken($token)
                 ->get("$apiBase/user/{$user->id}/playlists");
 
             if (
@@ -27,15 +29,10 @@ class SongController extends Controller
                 $responseSongs->failed() ||
                 $responseUserPlaylists->failed()
             ) {
-                return view('artists.songs', [
-                    'artist' => null,
-                    'album' => null,
-                    'songs' => collect(),
-                    'userPlaylists' => collect(),
-                    'error' => "Failed to fetch artist, album, songs or playlists"
-                ]);
+                throw new \Exception("Failed to fetch required data");
             }
 
+            // Artist
             $artistData = $responseArtist->json()['artist'] ?? null;
 
             $artist = (object)[
@@ -46,6 +43,7 @@ class SongController extends Controller
                 'nationality' => $artistData['nationality'] ?? null,
             ];
 
+            // Album
             $albumData = $responseAlbum->json()['album'] ?? null;
 
             $album = (object)[
@@ -57,19 +55,20 @@ class SongController extends Controller
                 'artist_id' => $artist_id,
             ];
 
+            // User playlists
             $userPlaylists = collect($responseUserPlaylists->json()['playlists'] ?? [])
                 ->map(fn($p) => (object)[
                     'id' => $p['id'],
                     'name' => $p['name'] ?? 'Unnamed Playlist'
                 ]);
 
+            // Songs
             $songsData = $responseSongs->json();
 
             $songs = collect($songsData['songs'] ?? [])
-                ->map(function ($song) use ($apiBase, $user) {
+                ->map(function ($song) use ($apiBase, $user, $token, $artist, $album) {
 
-                    $token = session('api_token');
-
+                    // Fetch playlists containing this song
                     $playlistIds = [];
 
                     try {
@@ -89,26 +88,34 @@ class SongController extends Controller
                     return (object)[
                         'id' => $song['id'] ?? null,
                         'name' => $song['name'] ?? 'Unknown Song',
+
+                        // 🔥 REQUIRED FOR PLAYER
+                        'stream_url' => $song['stream_url'] 
+                            ?? "$apiBase/song/{$song['id']}/stream",
+
+                        // ✅ UI DATA
+                        'artist_name' => $song['artist_name'] ?? $artist->name,
+                        'album_cover' => $song['album_cover'] ?? $album->cover,
+
+                        // ✅ PLAYLIST DATA
                         'playlist_ids' => $playlistIds,
                     ];
                 });
 
-            return view('artists.songs', compact(
-                'artist',
-                'album',
-                'songs',
-                'userPlaylists',
-                'error'
-            ));
-
         } catch (\Exception $e) {
-            return view('artists.songs', [
-                'artist' => null,
-                'album' => null,
-                'songs' => collect(),
-                'userPlaylists' => collect(),
-                'error' => "Error: " . $e->getMessage()
-            ]);
+            $artist = null;
+            $album = null;
+            $songs = collect();
+            $userPlaylists = collect();
+            $error = "Error: " . $e->getMessage();
         }
+
+        return view('artists.songs', compact(
+            'artist',
+            'album',
+            'songs',
+            'userPlaylists',
+            'error'
+        ));
     }
 }
