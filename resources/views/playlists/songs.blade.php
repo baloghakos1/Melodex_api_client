@@ -83,7 +83,6 @@
                                         <!-- Add to playlist -->
                                         <a @click.prevent="$dispatch('open-modal', {{ $song->id }}); open = false"
                                             class="block px-4 py-2 cursor-pointer hover:bg-gray-100">
-
                                             Add to other playlists
                                         </a>
 
@@ -109,6 +108,57 @@
                         </div>
                     @endforeach
                 </div>
+                <div
+                    x-data="{ open: false, songId: null }"
+                    x-on:open-modal.window="open = true; songId = $event.detail"
+                    x-show="open"
+                    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]"
+                    style="display:none;"
+                >
+                    <div class="bg-white text-black rounded-lg p-6 w-96 relative">
+
+                        <h3 class="text-lg font-bold mb-4 text-gray-900">
+                            Select playlists
+                        </h3>
+
+                        <!-- ✅ FIXED: dynamic action -->
+                        <form method="POST" action="{{ route('playlist.syncSongPlaylists', $song->id) }}">
+                            @csrf
+
+                            @foreach($userPlaylists as $playlistItem)
+                                <div class="mb-2">
+                                    <label class="flex items-center space-x-2 text-gray-800">
+                                        <input type="checkbox"
+                                            name="playlists[]"
+                                            value="{{ $playlistItem->id }}"
+                                            class="h-4 w-4">
+
+                                        <span>{{ $playlistItem->name }}</span>
+                                    </label>
+                                </div>
+                            @endforeach
+
+                            <div class="flex justify-end space-x-2 mt-4">
+                                <button type="button"
+                                        @click="open = false"
+                                        class="px-4 py-2 border rounded text-gray-800">
+                                    Cancel
+                                </button>
+
+                                <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded">
+                                    Ok
+                                </button>
+                            </div>
+                        </form>
+
+                        <button @click="open = false"
+                                class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
+                            &times;
+                        </button>
+
+                    </div>
+                </div>
 
                 @endif
 
@@ -116,57 +166,7 @@
         </div>
     </div>
 
-    <div
-        x-data="{ open: false, songId: null }"
-        x-on:open-modal.window="open = true; songId = $event.detail"
-        x-show="open"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]"
-        style="display:none;"
-    >
-        <div class="bg-white text-black rounded-lg p-6 w-96 relative">
-
-            <h3 class="text-lg font-bold mb-4 text-gray-900">
-                Select playlists
-            </h3>
-
-            <!-- ✅ FIXED: dynamic action -->
-            <form method="POST" action="{{ route('playlist.syncSongPlaylists', $song->id) }}">
-                @csrf
-
-                @foreach($userPlaylists as $playlistItem)
-                    <div class="mb-2">
-                        <label class="flex items-center space-x-2 text-gray-800">
-                            <input type="checkbox"
-                                   name="playlists[]"
-                                   value="{{ $playlistItem->id }}"
-                                   class="h-4 w-4">
-
-                            <span>{{ $playlistItem->name }}</span>
-                        </label>
-                    </div>
-                @endforeach
-
-                <div class="flex justify-end space-x-2 mt-4">
-                    <button type="button"
-                            @click="open = false"
-                            class="px-4 py-2 border rounded text-gray-800">
-                        Cancel
-                    </button>
-
-                    <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded">
-                        Ok
-                    </button>
-                </div>
-            </form>
-
-            <button @click="open = false"
-                    class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
-                &times;
-            </button>
-
-        </div>
-    </div>
+    
 
     <script>
         function initSongsPage() {
@@ -174,39 +174,18 @@
 
         const songsData = @json($songs).map(song => ({
             ...song,
-
             artist_name: song.artist_name ?? 'Unknown Artist',
-
-            album: {
-                cover: song.album_cover ?? ''
-            }
+            album: { cover: song.album_cover ?? '' }
         }));
 
         window.musicPlayer.init(songsData);
 
         document.querySelectorAll('.song-play-btn').forEach((btn, index) => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-
-                const player = window.musicPlayer;
-
-                const isSameSong = player.currentSongIndex === index;
-
-                if (isSameSong) {
-                    if (player.isPlaying) {
-                        player.pause();
-                    } else {
-                        player.play();
-                    }
-                } else {
-                    // 🔥 ALWAYS reinitialize song properly
-                    player.loadSong(index, true);
-                }
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.musicPlayer.loadSong(index, true);
+                });
             });
-        });
-
-
-
     }
 
     document.addEventListener('DOMContentLoaded', initSongsPage);

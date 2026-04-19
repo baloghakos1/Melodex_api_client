@@ -18,7 +18,6 @@ class SearchController extends Controller
                 $apiBase = rtrim(config('app.api_url'), '/');
                 // Fetching from your API
                 $response = Http::get("$apiBase/search", ['query' => $query]);
-
                 if ($response->failed()) {
                     $error = "Could not fetch results.";
                 } else {
