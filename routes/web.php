@@ -14,9 +14,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/artists.index', [ArtistController::class, 'index'])->middleware(['auth'])->name('dashboard');
 
 Route::get('/crud.index', function () {
     return view('crud.index');

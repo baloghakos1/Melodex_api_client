@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 use App\Models\User;
+use Carbon\Carbon;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -56,11 +57,12 @@ class AuthenticatedSessionController extends Controller
         $user = new User();
         $user->id = $responseBody->user->id;
         $user->email = $responseBody->user->email;
+        $user->email_verified_at = Carbon::now();
 
         Auth::login($user);
 
         // Redirect to intended page or dashboard
-        return redirect()->intended('/dashboard');
+        return redirect()->intended('artists.index');
     }
 
     // API login failed (wrong credentials, server error, etc.)

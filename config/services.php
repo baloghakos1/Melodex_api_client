@@ -35,7 +35,7 @@ return [
         ],
     ],
     'api' => [
-        'base_uri' => env('API_URL', 'https://localhost:8000/api'),
+        'base_uri' => env('API_URL', 'http://localhost:8000/api'),
     ],
 
 ];
