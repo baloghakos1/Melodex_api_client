@@ -131,7 +131,9 @@
                                         <input type="checkbox"
                                             name="playlists[]"
                                             value="{{ $playlistItem->id }}"
-                                            class="h-4 w-4">
+                                            class="h-4 w-4"
+                                            {{ in_array($playlistItem->id, $song->playlist_ids ?? []) ? 'checked' : '' }}
+                                            >
 
                                         <span>{{ $playlistItem->name }}</span>
                                     </label>
